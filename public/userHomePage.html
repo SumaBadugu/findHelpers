@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>User Home</title>
+  <style>
+    
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f8fa;
+      margin: 0;
+      color: rgb(63, 63, 63);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      background-color: #21778f;
+      color: white;
+      padding: 20px 40px;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    main {
+      flex: 1;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 20px;
+      text-align: center;
+    }
+
+    .welcome-msg {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .hero-icon {
+      font-size: 80px;
+      margin: 20px 0 40px;
+    }
+
+    .cards-container {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 220px;
+      padding: 30px 20px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 8px 20px rgba(13, 1, 1, 0.15);
+    }
+
+    .card-icon {
+      font-size: 50px;
+      margin-bottom: 15px;
+    }
+
+    .card-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #222;
+    }
+
+    .card-info {
+      font-size: 0.95rem;
+      color: #555;
+    }
+
+    footer {
+      background-color: #21778f;
+      color: white;
+      padding: 15px ;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    
+    @media (max-width: 600px) {
+      .cards-container {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .card {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    FIND HELPERS
+  </header>
+
+  <main>
+    <div class="welcome-msg">Welcome back, <span id="userName">User</span>!</div>
+
+    <div class="hero-icon" aria-label="Service icon">🏠</div>
+
+    <div class="cards-container">
+      <div class="card" onclick="location.href='userServicesPage.html'">
+        <div class="card-icon" aria-label="Book Service Icon">📋</div>
+        <div class="card-title">Book a Service</div>
+        <div class="card-info">Browse and request services easily</div>
+      </div>
+
+      <div class="card" onclick="location.href='userHistoryPage.html'">
+        <div class="card-icon" aria-label="Booking History Icon">📅</div>
+        <div class="card-title">My Bookings</div>
+        <div class="card-info">View your upcoming and past bookings</div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2025 Find Helpers.
+  </footer>
+
+  <script>
+    
+    const userName = "Suma"; //can be replaced with actual data
+    document.getElementById("userName").textContent = userName;
+  </script>
+
+</body>
+</html>

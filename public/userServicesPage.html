@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Available Services</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f8fa;
+      margin: 0;
+      color: rgb(63, 63, 63);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+   
+    header {
+      background-color: #21778f;
+      color: white;
+      padding: 20px ;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    main {
+      flex: 1;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-weight: 700;
+      color: #18126d;
+    }
+    .search-bar {
+      max-width: 400px;
+      margin: 0 auto 40px;
+      display: flex;
+      gap: 10px;
+    }
+    .search-bar input {
+      flex: 1;
+      padding: 10px 15px;
+      font-size: 1rem;
+      border: 2px solid black;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+    .search-bar input:focus {
+      border-color: #2b6e79;
+    }
+    .services-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 25px;
+      justify-content: center;
+    }
+    .service-card {
+      background-color: white;
+      width: 220px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      padding: 25px 20px;
+      text-align: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .service-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+    .service-icon {
+      font-size: 50px;
+      margin-bottom: 15px;
+    }
+    .service-name {
+      font-weight: 700;
+      font-size: 1.15rem;
+      margin-bottom: 8px;
+      color: #222;
+    }
+    .book-btn {
+      background-color: #1b5e6a;
+      color: white;
+      border: none;
+      padding: 10px 0;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      user-select: none;
+    }
+    .book-btn:hover {
+      background-color: #2b6e79;
+    }
+    footer {
+      background-color: #21778f;
+      color: white;
+      padding: 15px ;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+    .popup{
+      display: none;
+      z-index : 9999;
+      background-color: white;
+      position:fixed; 
+      top:20%; 
+      left:50%;
+       transform:translate(-50%, -20%);
+  background:white;
+   padding:20px;
+    box-shadow:0 5px 20px rgba(0,0,0,0.2);
+     border-radius:10px; 
+     
+    }
+    .request{
+      width:100%; 
+      margin:10px 0;
+      padding:8px
+
+    }
+    @media (max-width: 600px) {
+      .services-container {
+        flex-direction: column;
+        align-items: center;
+      }
+      .service-card {
+        width: 90%;
+      }
+      .search-bar {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  FIND HELPERS
+</header>
+
+<main>
+  <h1>Available Services</h1>
+
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search services..." oninput="filterServices()" />
+  </div>
+
+  <div class="services-container" id="servicesContainer">
+    
+  </div>
+  <div id="professionalsContainer"></div>
+
+<div id="popup" class="popup">
+  <h3>Send Request</h3>
+  <p id="selectedProfessionalName"></p>
+  <input type="hidden" id="user_id_popup" class="request"/>
+  <input type="hidden" id="sp_id_popup" class="request"/>
+  <input type="hidden" id="ser_id_popup" class="request"/>
+  <input type="text" placeholder="Your Name" class="request" />
+  <input type="tel" placeholder="Mobile number" class="request" />
+  <input type="date" placeholder="Enter date" class="request" />
+  <input type="time" placeholder="Enter time" class="request" />
+    <input type="text" placeholder="Your Address" class="request" />
+  <button onclick="sendRequest()" style="background:#1b5e6a; color:white; border:none; padding:10px 20px; border-radius:8px;">Send</button>
+  <button onclick="closePopup()" style="margin-left:10px; background:#ccc; border:none; padding:10px 20px; border-radius:8px;">Cancel</button>
+</div>
+
+</main>
+
+<footer>
+  &copy; 2025 Find Helpers.
+</footer>
+
+<script>
+  
+  let services = [];
+
+  const serviceIcons= {
+    "Plumbing Repair" : "🔧",
+    "Home Cleaning" : "🧹",
+    "Electrical Work" : "💡",
+    "AC Service" : "❄️",
+    "Gardening" : "🌿",
+    "Painting" : "🎨"
+  }
+
+  let serviceProfessionals = [];
+
+
+//to load the services
+  async function loadServices(){
+    try{
+      const res = await fetch('http://localhost:4200/services');
+      const data = await res.json();
+      services = data;
+      renderServices(services);
+    }
+    catch(err){
+      console.error("Error in fetching services",err);
+    }
+  }
+
+  
+
+  const servicesContainer = document.getElementById("servicesContainer");
+  const searchInput = document.getElementById("searchInput");
+
+  // to display the services
+  function renderServices(filteredServices) {
+    servicesContainer.innerHTML = "";
+    filteredServices.forEach(service => {
+      const icon = serviceIcons[service.serviceName] || "🛠️"
+      const card = document.createElement("div");
+      card.className = "service-card";
+      card.innerHTML = `
+        <div class="service-icon" aria-label="${service.serviceName} icon">${icon}</div>
+        <div class="service-name">${service.serviceName}</div>
+        <button class="book-btn" onclick="bookService(${service.ser_id})">Book</button>
+      `;
+
+      servicesContainer.appendChild(card);
+    });
+  }
+//to filter services after searching for any particular service
+  function filterServices() {
+    const query = searchInput.value.toLowerCase();
+    const filtered = services.filter(s => s.serviceName.toLowerCase().includes(query));
+    renderServices(filtered);
+  }
+// to book service
+  async function bookService(serviceId) {
+    console.log("Booking service with ID:", serviceId);
+    const selectedService = services.find(s => s.ser_id === serviceId);
+  if (!selectedService) return;
+  selectedServiceName = selectedService.serviceName; 
+  console.log("Selected Service Name:", selectedServiceName);
+
+  try{
+    const resp = await fetch(`http://localhost:4200/serviceProfessionals/${serviceId}`);
+    serviceProfessionals = await resp.json();
+    console.log("Fetched professionals:", serviceProfessionals);
+    showProfessionals(selectedServiceName);
+  }
+  catch(err){
+    console.error("Error in fetching service professionals",err);
+
+  }
+    
+  }
+
+  //to show the professionals based on the selected service
+  function showProfessionals(serviceName) {
+  const filteredPros = serviceProfessionals;
+  const container = document.getElementById("professionalsContainer");
+  container.innerHTML = `<h2>Available Professionals for ${serviceName}</h2>`;
+  
+  filteredPros.forEach(pro => {
+    const proCard = document.createElement("div");
+    proCard.style.cssText = "background:white; padding:20px; margin:10px 0; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1);";
+    proCard.innerHTML = `
+      <strong>${pro.sp_name}</strong><br/>
+      Address: ${pro.sp_area}<br/>
+      Contact: ${pro.sp_contact}<br/><br/>
+      <button onclick="openPopup('${encodeURIComponent(JSON.stringify(pro))}')"
+        style="background:#1b5e6a; color:white; border:none; padding:8px 12px; border-radius:8px;">Send Request</button>
+    `;
+    container.appendChild(proCard);
+  });
+}
+
+// to open the popup
+function openPopup(proStr) {
+  const pro = JSON.parse(decodeURIComponent(proStr))
+  document.getElementById("popup").style.display = "block";
+  
+  document.getElementById("selectedProfessionalName").innerText = `To: ${pro.sp_name}`;
+  
+  document.getElementById("user_id_popup").value = 1; // temporarily...
+  document.getElementById("sp_id_popup").value = pro.sp_id;
+  document.getElementById("ser_id_popup").value = pro.ser_id;
+  
+}
+
+// to close the popup
+function closePopup() {
+  document.getElementById("popup").style.display = "none";
+}
+
+//To send the new request to service professional
+function sendRequest() {
+  const inputs = document.querySelectorAll(".request");
+  const [user_idInput, sp_idInput, ser_idInput, nameInput, contactInput, dateInput, timeInput, addressInput] = inputs;
+
+
+  const requestData = {
+    user_id : user_idInput.value,
+    sp_id : sp_idInput.value,
+    ser_id : ser_idInput.value,
+    req_user_name: nameInput.value,
+    contact: contactInput.value,
+    serviceDate: dateInput.value,
+    serviceTime: timeInput.value,
+    address: addressInput.value,
+                   
+  };
+
+  console.log("Request data:", requestData); 
+
+  fetch('http://localhost:4200/requests',{
+    method : "POST",
+    headers : {
+      "Content-Type" : "application/json"
+    },
+    body: JSON.stringify(requestData)
+  })
+  .then(res => res.text())
+  .catch(err =>{
+    console.error("Failed to send request: ",err);
+  });
+  
+  
+
+  user_idInput.value = "";
+  sp_idInput.value ="";
+  ser_idInput.value="";
+  nameInput.value = "";
+  contactInput.value="";
+  dateInput.value = "";
+  timeInput.value="";
+  addressInput.value = "";
+  closePopup();
+}
+
+  loadServices();
+</script>
+
+</body>
+</html>

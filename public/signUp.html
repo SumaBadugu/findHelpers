@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignUp page</title>
+    <style>
+        .body{
+            font-family: sans-serif;
+            margin: 10px;
+            
+        }
+        .header{
+            text-align: center;
+            background-color: cadetblue;
+            font-weight: bold;
+            font-size: 30px;
+            padding: 10px;
+        }
+        h2{
+            text-align: center;
+        }
+        .box{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container{
+            height:800px;
+            width: 380px;
+            background-color: azure;
+
+        }
+        input[type="text"], input[type="email"], input[type="tel"], input[type="password"]{
+            padding:10px;
+            margin:20px;
+            width: 80%;
+            border: 1px solid black;
+
+        }
+        input[type="radio"]{
+            margin: 10px;
+        }
+        p{
+            font-size: 18px;
+            margin: 10px;
+
+        }
+
+        .signUp-btn{
+            background-color: rgb(55, 170, 55);
+            padding: 5px 10px;
+            margin: 20px 10px 20px 150px;
+            font-size: 15px;
+            cursor: pointer;
+
+        }
+        .login-btn{
+            text-align: center;
+        }
+
+
+    </style>>
+</head>
+<body>
+    <div class="box">
+        <div class="container">
+            <div class="header">FIND HELPERS</div>
+            <h2>Sign Up</h2>
+            <form id="signupForm">
+                <input type="text" placeholder="Name" name="name" class="inputs">
+                <input type="email" placeholder="Email" name="email" class="inputs">
+                <input type="password" placeholder="Password" name="password" class="inputs">
+                <input type="tel" placeholder="Contact" name="contact" class="inputs">
+                <p>Role : </p>
+                <input type="radio" name="role" value="user" id="user">
+                <label for="user" >User</label>
+                <input type="radio" name="role" value="serviceProfessional" id="serviceProfessional">
+                <label for="serviceProfessional">Service Professional</label>
+                <div id="serviceContainer" style="display: none;  padding: 10px;">
+                    <p>Select Service: </p>
+                    <label for="service"></label>
+                    <select id="service" name="service" style="width: 80%;  margin-left: 25px; padding: 10px;">
+                        <option value="">Select</option>
+                    </select>
+                    <input type="text" placeholder="area" name="area" class="inputs">
+                </div>
+                <button type="submit" class="signUp-btn">Create</button>
+            </form>
+            <div class="login-btn">Already have an account? <a href="login.html">Login</a></div>
+        </div>
+    </div>
+    <script>
+        const userRadio = document.getElementById("user");
+        const spRadio = document.getElementById("serviceProfessional");
+        const serviceContainer = document.getElementById("serviceContainer");
+
+        userRadio.addEventListener("change", ()=>{
+            if(userRadio.checked){
+                serviceContainer.style.display = "none";
+            }
+        });
+
+        spRadio.addEventListener("change",()=>{
+            if(spRadio.checked){
+                serviceContainer.style.display = "block";
+                loadServices();
+            }
+        });
+
+        function loadServices(){
+            fetch('http://localhost:4200/services')
+            .then(res=> res.json())
+            .then(data =>{
+                const serviceDropdown = document.getElementById('service');
+                data.forEach(service =>{
+                    const option = document.createElement('option');
+                    option.value = service.ser_id;
+                    option.textContent = service.serviceName;
+                    serviceDropdown.appendChild(option);
+                });
+            })
+            .catch(err=>{
+                console.error(err);
+            })
+        }
+
+        document.getElementById("signupForm").addEventListener("submit",function(e){
+            e.preventDefault();
+
+            const name = document.querySelector('input[name="name"]').value;
+            const email = document.querySelector('input[name = "email"]').value;
+            const contact = document.querySelector('input[name = "contact"]').value;
+            const password = document.querySelector('input[name = "password"]').value;
+            const role = document.querySelector('input[name = "role"]:checked')?.value;
+            
+
+            if(!role){
+                alert(`Please select a role..`);
+                return;
+            }
+
+            if(role === 'serviceProfessional'){
+                const serviceId = document.querySelector('select[name = "service"]')?.value;
+                const area = document.querySelector('input[name="area"]').value;
+                if(!serviceId){
+                    alert(`Please select a service..`);
+                    return;
+                }
+
+                const spData = {name,email, password, contact, serviceId, area};
+
+                fetch('http://localhost:4200/signUp/serviceProfessional',{
+                    method : "POST",
+                    headers : {'Content-Type' : 'application/json'} ,
+                    body : JSON.stringify(spData)
+                })
+                .then(res =>{
+                    if(!res.ok){
+                        console.log("Unable to SignUp..")
+                    }
+                    //return;
+                })
+                .then(data =>{
+                    console.log('Service Professional Signed Up');
+                    window.location.href = 'spHomePage.html';
+                })
+                .catch(err =>{
+                    console.error(err);
+                });
+            }
+            if(role === 'user'){
+                const userData = {name, email, password, contact}
+                fetch('http://localhost:4200/signUp/user',{
+                    method : "POST",
+                    headers : {'Content-Type' : 'application/json'},
+                    body : JSON.stringify(userData)
+                })
+                .then(res =>{
+                    if(!res.ok){
+                        console.log("Unable to signUp..");
+                    }
+                    //return;
+                })
+                .then(data =>{
+                    console.log("User signed Up..");
+                    window.location.href = 'userHomePage.html';
+                })
+                .catch(err=>{
+                    console.error(err);
+                });
+
+            }
+        });
+
+        
+    </script>
+</body>
+</html>

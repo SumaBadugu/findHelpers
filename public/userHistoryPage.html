@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>User Home - Booking History Flow</title>
+<style>
+  header {
+      background-color: #21778f;
+      color: white;
+      padding: 20px 40px;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+    main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+  body {
+    font-family: Arial, sans-serif;
+    background: #f5f8fa;
+    margin: 0 ; 
+    color:  rgb(63, 63, 63);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    
+  }
+  
+  h2 {
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 20px;
+      color: #18126d;
+  }
+ 
+  /* .container {
+    max-width: 900px;
+    margin: 0 auto;
+  } */
+  .card-icon {
+      font-size: 40px;
+      margin-bottom: 10px;
+    }
+  .cards {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+     padding-left: 40px;
+  }
+  
+  .card {
+    background: white;
+    width: 280px;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    cursor: pointer;
+    /* flex: 1 1 200px; */
+    text-align: center;
+    transition: transform 0.2s ease;
+  }
+  .card:hover {
+    transform: translateY(-5px);
+  }
+  .card-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+    .card-info {
+      font-size: 14px;
+      color: #555;
+    }
+    .bookingListView{
+      min-width: 100vh;
+    }
+  .back-btn {
+    margin: 20px 0;
+    padding: 10px 18px;
+    background: #1e90ff;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    
+    
+  }
+  .booking-list {
+    margin-top: 20px;
+  }
+  .booking-item {
+    background: white;
+    margin-bottom: 15px;
+    padding: 15px 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  }
+  .status {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.85rem;
+    color: white;
+  }
+  .status.pending { background: #ffc107; color: #333; }
+  .status.completed { background: #28a745; }
+  .status.canceled { background: #dc3545; }
+
+  footer {
+      background-color: #21778f;
+      color: white;
+      padding: 15px ;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+</style>
+</head>
+<body>
+<header>
+    FIND HELPERS
+  </header>
+
+  <main>
+    <div><h2>Booking Details</h2></div>
+    
+<div id="bookingOptions"> 
+  <div class="cards">
+    <div class="card" id="upcomingCard">
+      <div class="card-icon">📅</div>
+      <div class="card-title">Upcoming Bookings</div>
+      <div class="card-info">See your upcoming appointments</div>
+    </div>
+    <div class="card" id="previousCard">
+      <div class="card-icon">📖</div>
+      <div class="card-title">Previous Bookings</div>
+      <div class="card-info">View your past bookings</div>
+    </div>
+  </div>
+</div>
+
+
+  <div id="bookingListView" style="display:none;" class="bookingListView">
+    <button class="back-btn" id="backToOptions">← Back</button>
+    <h2 id="bookingListTitle"></h2>
+    <div id="bookingList" class="booking-list"></div>
+  </div>
+
+
+  </main>
+  <footer>
+    &copy; 2025 Find Helpers.
+  </footer>
+<script>
+
+  let bookings = [];
+  const user_id = 1;
+
+  //function to get the history of booking details
+  async function loadHistory(){
+    try{
+      const res = await fetch(`http://localhost:4200/requests/users/${user_id}`);
+      const data = await res.json();
+      bookings = data;
+      //renderBookingList(bookings);
+    }
+    catch(err){
+      console.error(err)
+    }
+  }
+
+  const bookingOptions = document.getElementById("bookingOptions");
+  const upcomingCard = document.getElementById("upcomingCard");
+  const previousCard = document.getElementById("previousCard");
+
+  const bookingListView = document.getElementById("bookingListView");
+  const backToOptions = document.getElementById("backToOptions");
+  const bookingListTitle = document.getElementById("bookingListTitle");
+  const bookingList = document.getElementById("bookingList");
+
+  
+
+  backToOptions.addEventListener("click", () => {
+     
+    bookingListView.style.display = "none";
+    bookingOptions.style.display = "flex";
+  });
+
+  function renderBookingList(statusFilter) {
+    bookingList.innerHTML = "";
+    const filtered = bookings.filter(b => 
+      statusFilter === "previous" 
+        ? (b.requestStatus === "completed" || b.requestStatus === "canceled")
+        : b.requestStatus === "pending"
+    );
+
+    if (filtered.length === 0) {
+      bookingList.innerHTML = "<p>No bookings to show.</p>";
+      return;
+    }
+
+    filtered.forEach(b => {
+      const item = document.createElement("div");
+      item.className = "booking-item";
+      item.innerHTML = `
+        <div><strong>Name:</strong> ${b.req_user_name}</div>
+        <div><strong>Date:</strong> ${b.serviceDate}</div>
+        <div><strong>Time:</strong> ${b.serviceTime}</div>
+        <div><strong>Address:</strong> ${b.address}</div>
+        <div class="status ${b.requestStatus}">${b.requestStatus.charAt(0).toUpperCase() + b.requestStatus.slice(1)}</div>
+      `;
+      bookingList.appendChild(item);
+    });
+  }
+
+  upcomingCard.addEventListener("click", () => {
+    bookingOptions.style.display = "none";
+    bookingListView.style.display = "block";
+    bookingListTitle.textContent = "Upcoming Bookings";
+    renderBookingList("upcoming");
+  });
+
+  previousCard.addEventListener("click", () => {
+    bookingOptions.style.display = "none";
+    bookingListView.style.display = "block";
+    bookingListTitle.textContent = "Previous Bookings";
+    renderBookingList("previous");
+  });
+
+  loadHistory();
+</script>
+
+</body>
+</html>

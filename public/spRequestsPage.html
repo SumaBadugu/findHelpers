@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Service Requests</title>
+  <style>
+    header {
+      background-color: #21778f;
+      color: white;
+      padding: 20px ;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f9fb;
+      margin: 0;
+      height: 100%;
+    }
+    main{
+        padding:0 20px ;
+        flex: 1;
+    }
+    h2 {
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 20px;
+      color: #18126d;
+    }
+    .page{
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    .request-card {
+      background-color: #ffffff;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      /* box-shadow: 0 2px 5px rgba(0,0,0,0.1); */
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .request-info {
+      font-size: 16px;
+      color: #333;
+    }
+
+    .request-info span {
+      font-weight: bold;
+    }
+
+    .actions {
+      margin-top: 10px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      margin-right: 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .accept-btn {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .reject-btn {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .no-requests {
+      text-align: center;
+      color: #555;
+      margin-top: 40px;
+    }
+    footer {
+      background-color: #21778f;
+      color: white;
+      padding: 15px ;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+    @media (max-width: 600px) {
+      .cards-container {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .card {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+    <div class="page">
+    <header>
+  FIND HELPERS
+    </header>
+  <main>
+    <div>
+        <h2>Service Requests</h2>
+    </div>
+
+  <div id="requests-container">
+   
+  </div>
+
+  </main>
+  <footer>
+  &copy; 2025 Find Helpers.
+</footer>
+</div>
+  <script>
+    
+    let sp_id = 5;
+
+    // to get the service requests of a particular professional
+    async function loadServiceRequests(){
+      try{
+        const res = await fetch(`http://localhost:4200/pendingRequests/serviceProfessionals/${sp_id}`);
+        const data = await res.json();
+        renderRequests(data); // function call to display the data
+
+      }
+      catch(err){
+        console.error(err);
+      }
+    }
+
+    //to display the requests which are retrieved from loadServiceRequests function
+    function renderRequests(serviceRequests){
+    const container = document.getElementById("requests-container");
+
+    if (serviceRequests.length === 0) {
+      container.innerHTML = `<div class="no-requests">No pending service requests...</div>`;
+      return;
+    } 
+      serviceRequests.forEach((req) => {
+        const card = document.createElement("div");
+        card.className = "request-card";
+
+        card.innerHTML = `
+          <div class="request-info"><span>User:</span> ${req.req_user_name}</div>
+          <div class="request-info"><span>Contact:</span> ${req.contact}</div>
+          <div class="request-info"><span>Date:</span> ${req.serviceDate}</div>
+          <div class="request-info"><span>Time:</span> ${req.serviceTime}</div>
+          <div class="request-info"><span>Area:</span> ${req.address}</div>
+          <div class="actions">
+            <button class="btn accept-btn" onclick="acceptRequest(${req.req_id}, '${req.req_user_name}')">Accept</button>
+            <button class="btn reject-btn" onclick="rejectRequest(${req.req_id}, '${req.req_user_name}')">Reject</button>
+          </div>
+          
+        `;
+        container.appendChild(card);
+      });
+    
+  }
+
+  //function to accept the request
+  function acceptRequest(reqId) {
+    updateRequestStatus(reqId, 'accepted'); //function call to change the status
+  }
+
+  //function to reject the request
+  function rejectRequest(reqId) {
+    updateRequestStatus(reqId, 'canceled');  //function call to change the status
+  }
+
+  //function to make the change in status accordingly
+  function updateRequestStatus(reqId, newStatus) {
+    fetch(`http://localhost:4200/requests/${reqId}/status`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ newStatus: newStatus })
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to update status');
+      }
+      alert(`Request ${newStatus}`);
+      location.reload(); // to refresh the page after the status update
+    })
+    .catch(error => console.error('Error:', error));
+  }
+
+    window.onload=loadServiceRequests; // function call to load the serviceRequests
+  </script>
+</body>
+</html>

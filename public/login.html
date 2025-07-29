@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login page</title>
+    <style>
+        .body{
+            font-family: sans-serif;
+            
+        }
+        h2{
+            text-align: center;
+        }
+        p{font-size: 18px;
+            margin: 10px;
+        }
+        .header{
+            text-align: center;
+            font-size: 30px;
+            font-weight: bold;
+            background-color:cadetblue;
+            padding: 10px;
+        }
+        input[type="email"], input[type="password"]{
+            width: 80%;
+            padding: 10px 15px;
+            margin: 20px;
+            border: 1px solid black;
+        }
+        input[type="radio"]{
+            margin: 10px;
+        }
+        .container{
+            height: 550px;
+            width: 400px;
+            margin: 10px;
+            justify-content: center;
+            align-items: center;
+            background-color: azure;
+        }
+        .login-btn{
+            padding: 5px 10px;
+            width: 30%;
+            margin: 20px 10px 20px 130px;
+            background-color: rgb(55, 170, 55);
+            font-size: 15px;
+            cursor: pointer;
+            
+        }
+        .forgot{
+            padding-right: 100px;
+        }
+        .signUp{
+            padding-left: 100px;
+        }
+        .box{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+    <div class="container">
+        <div class="header">FIND HELPERS</div>
+
+        <h2>Login</h2>
+        <form id="loginForm">
+        <input type="email" placeholder="Email" name="email"><br>
+        <input type="password" placeholder="Password" name="password"><br>
+        <p> Role : </p>
+            <input type="radio" name="role" id="user">
+            <label for="user">User</label>
+            <input type="radio" name="role" id="serviceProfessional">
+            <label for="serviceProfessional">Service Professional</label><br><br>
+
+            <button type="submit" class="login-btn">Login</button><br><br>
+            
+        </form>
+        <div><span><a class="forgot" href="forgotPasswordPage.html" >Forgot Password</a></span>
+        <span><a class="signUp" href="signUp.html">Sign Up</a></span>
+        </div>
+    </div>
+    </div>
+    <script>
+        
+            document.getElementById("loginForm").addEventListener("submit", function(e){
+            e.preventDefault();
+
+            const email = document.querySelector('input[name = "email"]').value;
+            const password = document.querySelector('input[name = password]').value;
+
+            const userRadio = document.getElementById("user");
+            const spRadio = document.getElementById("serviceProfessional");
+
+            const loginData = {email, password};
+
+            if(userRadio.checked){
+                loginUser();
+            }
+
+            else if(spRadio.checked){
+                loginSP();
+            }
+            else{
+                alert("Please select role..");
+            }
+        
+
+            
+
+            function loginUser(){
+                fetch('http://localhost:4200/login/user',{
+                    method : "POST",
+                    headers : {"Content-Type" : "application/json"},
+                    body : JSON.stringify(loginData)
+                })
+                .then(res =>{
+                    if(!res.ok){
+                        console.log("User unable to login..")
+                    }
+                })
+                .then(data =>{
+                    console.log("User login successful..");
+                    window.location.href = 'userHomePage.html';
+                })
+                .catch(err =>{
+                    console.error(err);
+                })
+            }
+
+            function loginSP(){
+                fetch('http://localhost:4200/login/serviceProfessional',{
+                    method : "POST",
+                    headers : {"Content-Type" : "application/json"},
+                    body : JSON.stringify(loginData)
+                })
+                .then(res =>{
+                    if(!res.ok){
+                        console.log("Professional unable to login");
+                    }
+                })
+                .then(data =>{
+                    console.log("Service professional login successful..");
+                    window.location.href = 'spHomePage.html';
+                })
+                .catch(err =>{
+                    console.error(err);
+                })
+            }
+        });
+    </script>
+</body>
+</html>
