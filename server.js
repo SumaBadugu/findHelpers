@@ -9,12 +9,7 @@ app.use(cors());
 app.use(express.static('public'));
 
 //connecting database
-const db = mysql.createConnection({
-    host : 'localhost',
-    user : 'root',
-    password : 'Suma@2004',
-    database : 'findHelpersDB'
-});
+const db = mysql.createConnection(process.env.DATABASE_URL);
 
 db.connect(err =>{
     if(err){
