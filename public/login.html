@@ -117,13 +117,16 @@
                     headers : {"Content-Type" : "application/json"},
                     body : JSON.stringify(loginData)
                 })
-                .then(res =>{
+                .then(async res =>{
                     if(!res.ok){
-                        console.log("User unable to login..")
+                        const err = await res.text();
+                        alert("unable to login.."+err);
+                        throw new Error(err);
                     }
+                    return res.json();
                 })
                 .then(data =>{
-                    console.log("User login successful..");
+                    console.log("User login successful..",dataasync );
                     document.getElementById("loginForm").reset();
                     window.location.href = 'userHomePage.html';
                 })
@@ -138,10 +141,13 @@
                     headers : {"Content-Type" : "application/json"},
                     body : JSON.stringify(loginData)
                 })
-                .then(res =>{
+                .then( async res =>{
                     if(!res.ok){
-                        console.log("Professional unable to login");
+                        const err = await res.text();
+                        alert("unable to login" + err);
+                        throw new Error(err);
                     }
+                    return res.json();
                 })
                 .then(data =>{
                     console.log("Service professional login successful..");
