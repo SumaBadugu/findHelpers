@@ -9,13 +9,21 @@ app.use(cors());
 app.use(express.static('public'));
 
 //connecting database
-const db = mysql.createConnection({
-  host: process.env.MYSQLHOST,
-  user: process.env.MYSQLUSER,
-  password: process.env.MYSQLPASSWORD,
-  database: process.env.MYSQLDATABASE,
-  port: process.env.MYSQLPORT
+const url = require("url");
+
+// Parse Railway's MYSQL_URL
+const dbUrl = process.env.MYSQL_URL;  
+const parsedUrl = url.parse(dbUrl);
+const [user, password] = parsedUrl.auth.split(":");
+
+const connection = mysql.createConnection({
+  host: parsedUrl.hostname,
+  user: user,
+  password: password,
+  database: parsedUrl.pathname.replace("/", ""), 
+  port: parsedUrl.port
 });
+
 
 db.connect(err =>{
     if(err){
