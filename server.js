@@ -12,9 +12,12 @@ app.use(express.static('public'));
 const url = require("url");
 
 // Parse Railway's MYSQL_URL
-const dbUrl = process.env.DATABASE_URL;  
+const dbUrl = process.env.DATABASE_URL; 
+console.log("DATABSE_URL is : ", process.env.DATABASE_URL);
 const parsedUrl = url.parse(dbUrl);
 const [user, password] = parsedUrl.auth.split(":");
+
+
 
 const db = mysql.createConnection({
   host: parsedUrl.hostname,
