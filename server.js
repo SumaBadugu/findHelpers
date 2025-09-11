@@ -2,6 +2,7 @@ const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
 const app = express();
+const path = require('path');
 
 
 app.use(express.json());
@@ -27,6 +28,14 @@ db.connect(err => {
     console.log('Connected to findHelpers Database')
 
 });
+
+
+
+// Serve login.html as homepage
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
 
 //user signup
 app.post('/signUp/user', (req, res) => {
