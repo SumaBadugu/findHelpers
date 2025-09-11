@@ -69,7 +69,7 @@ app.post('/signUp/serviceProfessional', (req, res) => {
     if (!name || !email || !password || !contact || !serviceId || !area) {
         return res.status(400).send("name, email, password, contact, serviceId, area");
     }
-    db.query('select * from serviceProfessionals where sp_email=?', [email], (err, results) => {
+    db.query('select * from serviceprofessionals where sp_email=?', [email], (err, results) => {
         if (err) {
             console.error(err);
             return res.status(500).send("server error");
@@ -78,7 +78,7 @@ app.post('/signUp/serviceProfessional', (req, res) => {
             return res.status(409).send("Service professional with this email already exists");
         }
         console.log(name, email, password, contact);
-        db.query('insert into serviceProfessionals (sp_name, sp_email, sp_password, sp_contact,ser_id, sp_area ) values (?,?,?,?,?,?)', [name, email, password, contact, serviceId, area], (err, results) => {
+        db.query('insert into serviceprofessionals (sp_name, sp_email, sp_password, sp_contact,ser_id, sp_area ) values (?,?,?,?,?,?)', [name, email, password, contact, serviceId, area], (err, results) => {
             if (err) {
                 console.error(err);
                 return res.status(500).send("server error");
@@ -124,7 +124,7 @@ app.post('/login/serviceProfessional', (req, res) => {
     if (!email || !password) {
         return res.status(400).send("send both email and password..");
     }
-    db.query('select * from serviceProfessionals where sp_email=?', [email], (err, results) => {
+    db.query('select * from serviceprofessionals where sp_email=?', [email], (err, results) => {
         if (err) {
             console.error(err);
             return res.status(500).send("server error");
@@ -209,7 +209,7 @@ app.get('/services', (req, res) => {
 // to get service professional based on the service they provide
 app.get('/serviceProfessionals/:ser_id', (req, res) => {
     const serviceId = req.params.ser_id;
-    db.query('select * from serviceProfessionals where ser_id = ?', [serviceId], (err, results) => {
+    db.query('select * from serviceprofessionals where ser_id = ?', [serviceId], (err, results) => {
         if (err) {
             console.error(err);
             return res.status(500).send(`Error in getting the service professional with id : ${serviceId}`);
