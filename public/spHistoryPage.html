@@ -184,7 +184,7 @@ let bookings = [];
   //function to get the history of booking details
   async function loadHistory(){
     try{
-      const res = await fetch(`http://localhost:4200/requests/serviceProfessionals/${sp_id}`);
+      const res = await fetch(`https://findhelpers.onrender.com/requests/serviceProfessionals/${sp_id}`);
       const data = await res.json();
       bookings = data;
       //renderBookingList(bookings);
@@ -275,7 +275,7 @@ let bookings = [];
 
   //function to make the change in status accordingly
   function updateRequestStatus(reqId, newStatus) {
-    fetch(`http://localhost:4200/requests/${reqId}/status`, {
+    fetch(`https://findhelpers.onrender.com/requests/${reqId}/status`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ newStatus: newStatus })

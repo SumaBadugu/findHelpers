@@ -128,7 +128,7 @@
     // to get the service requests of a particular professional
     async function loadServiceRequests(){
       try{
-        const res = await fetch(`http://localhost:4200/pendingRequests/serviceProfessionals/${sp_id}`);
+        const res = await fetch(`https://findhelpers.onrender.com/pendingRequests/serviceProfessionals/${sp_id}`);
         const data = await res.json();
         renderRequests(data); // function call to display the data
 
@@ -179,7 +179,7 @@
 
   //function to make the change in status accordingly
   function updateRequestStatus(reqId, newStatus) {
-    fetch(`http://localhost:4200/requests/${reqId}/status`, {
+    fetch(`https://findhelpers.onrender.com/requests/${reqId}/status`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ newStatus: newStatus })

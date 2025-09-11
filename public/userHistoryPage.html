@@ -165,7 +165,7 @@
   //function to get the history of booking details
   async function loadHistory(){
     try{
-      const res = await fetch(`http://localhost:4200/requests/users/${user_id}`);
+      const res = await fetch(`https://findhelpers.onrender.com/requests/users/${user_id}`);
       const data = await res.json();
       bookings = data;
       //renderBookingList(bookings);

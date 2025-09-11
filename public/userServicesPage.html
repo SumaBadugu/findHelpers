@@ -203,7 +203,7 @@
 //to load the services
   async function loadServices(){
     try{
-      const res = await fetch('http://localhost:4200/services');
+      const res = await fetch('https://findhelpers.onrender.com/services');
       const data = await res.json();
       services = data;
       renderServices(services);
@@ -249,7 +249,7 @@
   console.log("Selected Service Name:", selectedServiceName);
 
   try{
-    const resp = await fetch(`http://localhost:4200/serviceProfessionals/${serviceId}`);
+    const resp = await fetch(`https://findhelpers.onrender.com/serviceProfessionals/${serviceId}`);
     serviceProfessionals = await resp.json();
     console.log("Fetched professionals:", serviceProfessionals);
     showProfessionals(selectedServiceName);
@@ -319,7 +319,7 @@ function sendRequest() {
 
   console.log("Request data:", requestData); 
 
-  fetch('http://localhost:4200/requests',{
+  fetch('https://findhelpers.onrender.com/requests',{
     method : "POST",
     headers : {
       "Content-Type" : "application/json"

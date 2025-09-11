@@ -112,7 +112,7 @@
             
 
             function loginUser(){
-                fetch('http://localhost:4200/login/user',{
+                fetch('https://findhelpers.onrender.com/login/user',{
                     method : "POST",
                     headers : {"Content-Type" : "application/json"},
                     body : JSON.stringify(loginData)
@@ -124,6 +124,7 @@
                 })
                 .then(data =>{
                     console.log("User login successful..");
+                    document.getElementById("loginForm").reset();
                     window.location.href = 'userHomePage.html';
                 })
                 .catch(err =>{
@@ -132,7 +133,7 @@
             }
 
             function loginSP(){
-                fetch('http://localhost:4200/login/serviceProfessional',{
+                fetch('https://findhelpers.onrender.com/login/serviceProfessional',{
                     method : "POST",
                     headers : {"Content-Type" : "application/json"},
                     body : JSON.stringify(loginData)

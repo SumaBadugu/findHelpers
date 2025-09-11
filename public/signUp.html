@@ -109,7 +109,7 @@
         });
 
         function loadServices(){
-            fetch('http://localhost:4200/services')
+            fetch('https://findhelpers.onrender.com/services')
             .then(res=> res.json())
             .then(data =>{
                 const serviceDropdown = document.getElementById('service');
@@ -150,7 +150,7 @@
 
                 const spData = {name,email, password, contact, serviceId, area};
 
-                fetch('http://localhost:4200/signUp/serviceProfessional',{
+                fetch('https://findhelpers.onrender.com/signUp/serviceProfessional',{
                     method : "POST",
                     headers : {'Content-Type' : 'application/json'} ,
                     body : JSON.stringify(spData)
@@ -171,7 +171,7 @@
             }
             if(role === 'user'){
                 const userData = {name, email, password, contact}
-                fetch('http://localhost:4200/signUp/user',{
+                fetch('https://findhelpers.onrender.com/signUp/user',{
                     method : "POST",
                     headers : {'Content-Type' : 'application/json'},
                     body : JSON.stringify(userData)
