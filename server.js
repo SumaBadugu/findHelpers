@@ -2,7 +2,7 @@ const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
 const app = express();
-const port = 4200;
+
 
 app.use(express.json());
 app.use(cors());
@@ -12,7 +12,7 @@ app.use(express.static('public'));
 const url = require("url");
 
 // Parse Railway's MYSQL_URL
-const dbUrl = process.env.MYSQL_URL;  
+const dbUrl = process.env.DATABASE_URL;  
 const parsedUrl = url.parse(dbUrl);
 const [user, password] = parsedUrl.auth.split(":");
 
@@ -293,6 +293,8 @@ app.put('/requests/:req_id/status',(req,res)=>{
         }
     });
 });
+
+const port = process.env.PORT || 4200;
 
 app.listen(port,()=>{
     console.log("server is running..");
