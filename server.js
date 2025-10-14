@@ -1,64 +1,38 @@
 const express = require('express');
-// const mysql = require('mysql2');
 const cors = require('cors');
 const app = express();
 const path = require('path');
-
+const { Pool } = require('pg'); // Keep this
 
 app.use(express.json());
 app.use(cors());
 app.use(express.static('public'));
 
-//connecting database
-
-
-// const db = mysql.createConnection({
-//     host: process.env.DB_HOST,
-//     port: process.env.DB_PORT,
-//     user: process.env.DB_USER,
-//     password: process.env.DB_PASSWORD,
-//     database: process.env.DB_NAME
-// });
-
-const { Pool } = require('pg');
+// Connecting database
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL, // Render gives this directly
+  connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }
 });
-
-
-
-// db.connect(err => {
-//     if (err) {
-//         console.error('DB coonection failed..');
-//         return;
-//     }
-//     console.log('Connected to findHelpers Database')
-
-// });
 
 pool.connect()
   .then(() => console.log('Connected to findHelpers PostgreSQL Database'))
   .catch(err => console.error('Database connection failed:', err));
-
-
 
 // Serve login.html as homepage
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
-
-//user signup
+// User signup
 app.post('/signUp/user', (req, res) => {
     const { name, email, password, contact } = req.body;
     if (!name || !email || !password || !contact) {
-        return res.status(400).send("name, email, password, contact");
+        return res.status(400).send("Missing required fields: name, email, password, contact");
     }
     pool.query('select * from users where user_email=$1', [email], (err, results) => {
         if (err) {
             console.error(err);
-            return res.status(500).send("server error");
+            return res.status(500).send("Server error during user email check.");
         }
         if (results.rowCount > 0) {
             return res.status(409).send("User with this email already exists");
@@ -66,24 +40,23 @@ app.post('/signUp/user', (req, res) => {
         pool.query('insert into users (user_name, user_email, user_password, user_contact ) values ($1,$2,$3,$4)', [name, email, password, contact], (err, results) => {
             if (err) {
                 console.error(err);
-                return res.status(500).send("server error");
+                return res.status(500).send("Server error during user signup.");
             }
             res.status(200).send("User signUp successful..");
         });
     });
 });
 
-
-//service professional signup
+// Service professional signup
 app.post('/signUp/serviceProfessional', (req, res) => {
     const { name, email, password, contact, serviceId, area } = req.body;
     if (!name || !email || !password || !contact || !serviceId || !area) {
-        return res.status(400).send("name, email, password, contact, serviceId, area");
+        return res.status(400).send("Missing required fields: name, email, password, contact, serviceId, area");
     }
     pool.query('select * from serviceprofessionals where sp_email=$1', [email], (err, results) => {
         if (err) {
             console.error(err);
-            return res.status(500).send("server error");
+            return res.status(500).send("Server error during service professional email check.");
         }
         if (results.rowCount > 0) {
             return res.status(409).send("Service professional with this email already exists");
@@ -92,33 +65,32 @@ app.post('/signUp/serviceProfessional', (req, res) => {
         pool.query('insert into serviceprofessionals (sp_name, sp_email, sp_password, sp_contact,ser_id, sp_area ) values ($1,$2,$3,$4,$5,$6)', [name, email, password, contact, serviceId, area], (err, results) => {
             if (err) {
                 console.error(err);
-                return res.status(500).send("server error");
+                return res.status(500).send("Server error during service professional signup.");
             }
             res.status(200).send("Service Professional signUp successful..");
         });
     });
 });
 
-
-//login routes
-// to verify user credentials when he logins
+// Login routes
+// To verify user credentials when he logins
 app.post('/login/user', (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) {
-        return res.status(400).send("send both email and password..");
+        return res.status(400).send("Please send both email and password.");
     }
     pool.query('select * from users where user_email=$1', [email], (err, results) => {
         if (err) {
             console.error(err);
-            return res.status(500).send("server error");
+            return res.status(500).send("Server error during user login.");
         }
         if (results.rowCount === 0) {
-            // no user found
-            return res.status(401).send("invalid email or password..");
+            // No user found
+            return res.status(401).send("Invalid email or password.");
         }
         const user = results.rows[0];
         if (password !== user.user_password) {
-            res.status(401).send("Incorrect password");
+            return res.status(401).send("Incorrect password"); // Use return here
         }
         res.status(200).json({
             message: "Login successful",
@@ -129,20 +101,20 @@ app.post('/login/user', (req, res) => {
     });
 });
 
-//service professional login
+// Service professional login
 app.post('/login/serviceProfessional', (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) {
-        return res.status(400).send("send both email and password..");
+        return res.status(400).send("Please send both email and password.");
     }
     pool.query('select * from serviceprofessionals where sp_email=$1', [email], (err, results) => {
         if (err) {
             console.error(err);
-            return res.status(500).send("server error");
+            return res.status(500).send("Server error during service professional login.");
         }
-        if (results.rowCount=== 0) {
-            // no user found
-            return res.status(401).send("invalid email or password..");
+        if (results.rowCount === 0) {
+            // No user found
+            return res.status(401).send("Invalid email or password.");
         }
         const serviceProfessional = results.rows[0];
         if (password !== serviceProfessional.sp_password) {
@@ -157,67 +129,64 @@ app.post('/login/serviceProfessional', (req, res) => {
     });
 });
 
-
-//forgot-password
+// Forgot-password
 app.post('/forgotPassword', (req, res) => {
     const { email, newPassword } = req.body;
     if (!email || !newPassword) {
-        return res.status(400).send("send both email and new password");
+        return res.status(400).send("Please send both email and new password.");
     }
     pool.query('select * from users where user_email=$1', [email], (err, results) => {
         if (err) {
             console.error(err);
-            return res.status(500).send("server error");
+            return res.status(500).send("Server error during password reset check.");
         }
         if (results.rowCount > 0) {
             pool.query('update users set user_password = $1 where user_email = $2', [newPassword, email], (err2, results2) => {
                 if (err2) {
                     console.error(err2);
-                    return res.status(500).send("Error updating password..");
+                    return res.status(500).send("Error updating user password.");
                 }
-                return res.status(200).send("User password updated successfully..");
+                return res.status(200).send("User password updated successfully.");
             });
         }
         else {
             pool.query('select * from serviceprofessionals where sp_email=$1', [email], (err3, results3) => {
                 if (err3) {
                     console.error(err3);
-                    return res.status(500).send("server error..");
+                    return res.status(500).send("Server error during password reset check for service professional.");
                 }
                 if (results3.rowCount > 0) {
                     pool.query('update serviceprofessionals set sp_password=$1 where sp_email=$2', [newPassword, email], (err4, results4) => {
                         if (err4) {
                             console.error(err4);
-                            return res.status(500).send("Unable to update new password for service professional..");
+                            return res.status(500).send("Unable to update new password for service professional.");
                         }
-                        return res.status(200).send("Password updated successfully..");
-                    })
+                        return res.status(200).send("Password updated successfully.");
+                    });
                 }
                 else {
-                    return res.status(404).send("Entered email is not found in both users and service professionals table..");
+                    return res.status(404).send("Entered email is not found in both users and service professionals tables.");
                 }
             });
         }
     });
 });
 
-
-
-//users' routes
-// to get available services for user
+// Users' routes
+// To get available services for user
 app.get('/services', (req, res) => {
     pool.query('select * from services', (err, results) => {
         if (err) {
             console.error(err);
-            return res.status(500).send('Error in getting services..');
+            return res.status(500).send('Error in getting services.');
         }
         else {
-            res.json(results);
+            res.json(results.rows); // <--- CORRECTED: Access .rows for the data
         }
     });
 });
 
-// to get service professional based on the service they provide
+// To get service professional based on the service they provide
 app.get('/serviceProfessionals/:ser_id', (req, res) => {
     const serviceId = req.params.ser_id;
     pool.query('select * from serviceprofessionals where ser_id = $1', [serviceId], (err, results) => {
@@ -226,26 +195,30 @@ app.get('/serviceProfessionals/:ser_id', (req, res) => {
             return res.status(500).send(`Error in getting the service professional with id : ${serviceId}`);
         }
         else {
-            res.json(results);
+            res.json(results.rows); // <--- CORRECTED: Access .rows for the data
         }
     });
 });
 
-// to add a new service request sent by the user
+// To add a new service request sent by the user
 app.post('/requests', (req, res) => {
     const { user_id, sp_id, ser_id, req_user_name, contact, serviceDate, serviceTime, address } = req.body;
+    // Added validation for required fields
+    if (!user_id || !sp_id || !ser_id || !req_user_name || !contact || !serviceDate || !serviceTime || !address) {
+        return res.status(400).send("Missing required request details.");
+    }
     pool.query('insert into requests (user_id, sp_id, ser_id, req_user_name, contact, serviceDate, serviceTime, address) values ($1,$2,$3,$4,$5,$6,$7,$8)', [user_id, sp_id, ser_id, req_user_name, contact, serviceDate, serviceTime, address], (err, results) => {
         if (err) {
             console.log("Error while adding request details", err);
-            return res.status(500).send("Server error");
+            return res.status(500).send("Server error while adding request.");
         }
         else {
-            res.status(200).send("Request details stored successfully..");
+            res.status(200).send("Request details stored successfully.");
         }
-    })
+    }); // Added missing semicolon
 });
 
-// to get all the requests made by a particular user
+// To get all the requests made by a particular user
 app.get('/requests/users/:user_id', (req, res) => {
     const userId = req.params.user_id;
     pool.query('select * from requests where user_id=$1', [userId], (err, results) => {
@@ -254,53 +227,60 @@ app.get('/requests/users/:user_id', (req, res) => {
             return res.status(500).send(`Unable to get request data of user with id ${userId}`);
         }
         else {
-            res.json(results);
+            res.json(results.rows); // <--- CORRECTED: Access .rows for the data
         }
     });
 });
 
-
-
-//service professional routes
-// to get all pending requests received by a particular service professional
+// Service professional routes
+// To get all pending requests received by a particular service professional
 app.get('/pendingRequests/serviceProfessionals/:sp_id', (req, res) => {
     const sp_id = req.params.sp_id;
-    pool.query('select * from requests where sp_id=$1 and requestStatus = "pending"', [sp_id], (err, results) => {
+    // IMPORTANT: PostgreSQL uses single quotes for string literals, not double quotes.
+    // Also, comparing an ENUM type needs a string.
+    pool.query('select * from requests where sp_id=$1 and requestStatus = \'pending\'', [sp_id], (err, results) => { // <--- CORRECTED: 'pending' instead of "pending"
         if (err) {
             console.error(err);
-            return res.status(500).send(`Unable to get requests data received by the service professional with id : ${ser_id}`);
+            // This error message had a typo 'ser_id' instead of 'sp_id'
+            return res.status(500).send(`Unable to get requests data received by the service professional with id : ${sp_id}`);
         }
         else {
-            res.json(results);
+            res.json(results.rows); // <--- CORRECTED: Access .rows for the data
         }
     });
 });
 
-// to get all the requests received by a particular professional
+// To get all the requests received by a particular professional
 app.get('/requests/serviceProfessionals/:sp_id', (req, res) => {
     const sp_id = req.params.sp_id;
     pool.query('select * from requests where sp_id=$1', [sp_id], (err, results) => {
         if (err) {
             console.error(err);
-            return res.status(500).send(`Unable to get requests data received by the service professional with id : ${ser_id}`);
+            // This error message had a typo 'ser_id' instead of 'sp_id'
+            return res.status(500).send(`Unable to get requests data received by the service professional with id : ${sp_id}`);
         }
         else {
-            res.json(results);
+            res.json(results.rows); // <--- CORRECTED: Access .rows for the data
         }
     });
 });
 
-// to update the status of the request
+// To update the status of the request
 app.put('/requests/:req_id/status', (req, res) => {
     const reqId = req.params.req_id;
     const { newStatus } = req.body;
+    // Added validation for newStatus
+    if (!newStatus) {
+        return res.status(400).send("New status is required.");
+    }
 
     pool.query('UPDATE requests SET requestStatus=$1 where req_id=$2', [newStatus, reqId], (err, results) => {
         if (err) {
             console.error(err);
-            return res.status(500).send("Error in updating the data");
+            return res.status(500).send("Error in updating the data.");
         }
-        else if (results.affectedRows === 0) {
+        // In node-postgres, `rowCount` is used for affected rows
+        else if (results.rowCount === 0) { // <--- CORRECTED: `rowCount` instead of `affectedRows`
             return res.status(404).send(`No request found with id ${reqId}`);
         }
         else {
@@ -309,10 +289,8 @@ app.put('/requests/:req_id/status', (req, res) => {
     });
 });
 
-
 const port = process.env.PORT || 4200;
 
 app.listen(port, () => {
-    console.log("server is running..");
+    console.log("Server is running on port", port); // Added port to log
 });
-
