@@ -142,7 +142,7 @@
                     throw new Error(`Failed to fetch services: ${servicesRes.statusText}`);
                 }
                 const servicesData = await servicesRes.json();
-                const serviceMap = new Map(servicesData.map(s => [s.ser_id, s.serviceName]));
+                const serviceMap = new Map(servicesData.map(s => [s.ser_id, s.servicename]));
 
                 const res = await fetch(`https://findhelpers.onrender.com/requests/users/${userId}`);
                 if (!res.ok) {

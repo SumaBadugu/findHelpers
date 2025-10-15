@@ -307,7 +307,7 @@
     "AC Service" : "❄️",
     "Gardening" : "🌿",
     "Painting" : "🎨",
-    "Other" : "👷" // Default icon
+    "Other" : "👷" 
   };
 
   // --- Fetching Services from API ---
@@ -324,7 +324,7 @@
     catch(err){
       console.error("Error in fetching services:", err);
       servicesContainer.innerHTML = `<p style="text-align: center; width: 100%; color: red;">Failed to load services. ${err.message || 'Please try again.'}</p>`;
-      // alert("Failed to load services. Please try again."); // Removed redundant alert
+      
     }
   }
 
@@ -340,12 +340,12 @@
     }
     filteredServices.forEach(service => {
       // Ensure service.serviceName is precisely matched with keys in serviceIcons
-      const icon = serviceIcons[service.serviceName] || serviceIcons["Other"]; 
+      const icon = serviceIcons[service.servicename] || serviceIcons["Other"]; 
       const card = document.createElement("div");
       card.className = "service-card";
       card.innerHTML = `
-        <div class="service-icon" aria-label="${service.serviceName} icon">${icon}</div>
-        <div class="service-name">${service.serviceName}</div>
+        <div class="service-icon" aria-label="${service.servicename} icon">${icon}</div>
+        <div class="service-name">${service.servicename}</div>
         <button class="book-btn" onclick="bookService(${service.ser_id})">Book</button>
       `;
       servicesContainer.appendChild(card);
@@ -355,7 +355,7 @@
   // --- Filtering Services via Search Input ---
   function filterServices() {
     const query = searchInput.value.toLowerCase();
-    const filtered = services.filter(s => s.serviceName.toLowerCase().includes(query));
+    const filtered = services.filter(s => s.servicename.toLowerCase().includes(query));
     renderServices(filtered);
   }
 
@@ -367,7 +367,7 @@
         alert("Service not found.");
         return;
     }
-    const selectedServiceName = selectedService.serviceName; 
+    const selectedServiceName = selectedService.servicename; 
 
     try{
         const resp = await fetch(`https://findhelpers.onrender.com/serviceProfessionals/${serviceId}`);
@@ -387,7 +387,7 @@
   // --- Displaying Available Professionals ---
   function showProfessionals(serviceName, serviceId) {
   const container = document.getElementById("professionalsContainer");
-  container.innerHTML = `<h2>Available Professionals for ${serviceName}</h2>`;
+  container.innerHTML = `<h2>Available Professionals for ${servicename}</h2>`;
   
   if (serviceProfessionals.length === 0) {
       container.innerHTML += "<p>No professionals available for this service yet.</p>";
