@@ -1,200 +1,261 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Service Requests</title>
-  <style>
-    header {
-      background-color: #21778f;
-      color: white;
-      padding: 20px ;
-      text-align: center;
-      font-size: 1.5rem;
-      font-weight: 600;
-    }
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f9fb;
-      margin: 0;
-      height: 100%;
-    }
-    main{
-        padding:0 20px ;
-        flex: 1;
-    }
-    h2 {
-      text-align: center;
-      font-size: 28px;
-      margin-bottom: 20px;
-      color: #18126d;
-    }
-    .page{
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Service Professional Requests</title>
+    <style>
+        
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f8fa;
+            margin: 0;
+            color: rgb(63, 63, 63);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-    .request-card {
-      background-color: #ffffff;
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 20px;
-      /* box-shadow: 0 2px 5px rgba(0,0,0,0.1); */
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
+        
+        header {
+            background-color: #21778f;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
 
-    .request-info {
-      font-size: 16px;
-      color: #333;
-    }
+       
+        main {
+            flex: 1; 
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+            text-align: center; 
+        }
+        h1 {
+            margin-bottom: 30px;
+            font-weight: 700;
+            color: #18126d;
+        }
 
-    .request-info span {
-      font-weight: bold;
-    }
+        .requests-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        .request-card {
+            background-color: white;
+            width: 300px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .request-card h3 {
+            margin-top: 0;
+            color: #21778f;
+            font-size: 1.2rem;
+        }
+        .request-card p {
+            margin: 8px 0;
+            font-size: 0.95rem;
+        }
+        .request-card .actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end; 
+        }
+        .request-card .actions button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s ease;
+        }
+        .request-card .actions .accept-btn {
+            background-color: #4caf50;
+            color: white;
+        }
+        .request-card .actions .accept-btn:hover {
+            background-color: #45a049;
+        }
+        .request-card .actions .reject-btn {
+            background-color: #f44336;
+            color: white;
+        }
+        .request-card .actions .reject-btn:hover {
+            background-color: #da190b;
+        }
+        .status-tag {
+            background-color: #ff9800; 
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
 
-    .actions {
-      margin-top: 10px;
-    }
+       
+        footer {
+            background-color: #21778f;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 0.9rem;
+            margin-top: auto; 
+        }
 
-    .btn {
-      padding: 8px 16px;
-      margin-right: 10px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    .accept-btn {
-      background-color: #28a745;
-      color: white;
-    }
-
-    .reject-btn {
-      background-color: #dc3545;
-      color: white;
-    }
-
-    .no-requests {
-      text-align: center;
-      color: #555;
-      margin-top: 40px;
-    }
-    footer {
-      background-color: #21778f;
-      color: white;
-      padding: 15px ;
-      text-align: center;
-      font-size: 0.9rem;
-    }
-    @media (max-width: 600px) {
-      .cards-container {
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .card {
-        width: 90%;
-      }
-    }
-  </style>
+        
+        @media (max-width: 600px) {
+            .request-card {
+                width: 90%;
+            }
+            .request-card .actions {
+                flex-direction: column;
+                gap: 5px;
+            }
+            .request-card .actions button {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="page">
+
     <header>
-  FIND HELPERS
+        FIND HELPERS
     </header>
-  <main>
-    <div>
-        <h2>Service Requests</h2>
-    </div>
 
-  <div id="requests-container">
-   
-  </div>
+    <main>
+        <h1>New Service Requests</h1>
 
-  </main>
-  <footer>
-  &copy; 2025 Find Helpers.
-</footer>
-</div>
-  <script>
-    
-    let sp_id = 5;
+        <div class="requests-container" id="requestsContainer">
+            <p>Loading pending requests...</p>
+        </div>
+    </main>
 
-    // to get the service requests of a particular professional
-    async function loadServiceRequests(){
-      try{
-        const res = await fetch(`https://findhelpers.onrender.com/pendingRequests/serviceProfessionals/${sp_id}`);
-        const data = await res.json();
-        renderRequests(data); // function call to display the data
+    <footer>
+        &copy; 2025 Find Helpers.
+    </footer>
 
-      }
-      catch(err){
-        console.error(err);
-      }
-    }
+    <script>
+        // --- Initialization and SP Authentication ---
+        const loggedInSpId = localStorage.getItem('loggedInSpId');
+        const requestsContainer = document.getElementById('requestsContainer');
 
-    //to display the requests which are retrieved from loadServiceRequests function
-    function renderRequests(serviceRequests){
-    const container = document.getElementById("requests-container");
+        if (!loggedInSpId) {
+            alert('You are not logged in as a Service Professional. Please log in.');
+            window.location.href = 'login.html';
+        } else {
+            loadPendingRequests(loggedInSpId);
+        }
 
-    if (serviceRequests.length === 0) {
-      container.innerHTML = `<div class="no-requests">No pending service requests...</div>`;
-      return;
-    } 
-      serviceRequests.forEach((req) => {
-        const card = document.createElement("div");
-        card.className = "request-card";
+        // --- Fetching Pending Requests for Service Professional ---
+        async function loadPendingRequests(spId) {
+            requestsContainer.innerHTML = '<p>Loading pending requests...</p>'; // Show loading message
+            try {
+                // Fetch services to map ser_id to serviceName
+                const servicesRes = await fetch('https://findhelpers.onrender.com/services');
+                const servicesData = await servicesRes.json();
+                const serviceMap = new Map(servicesData.map(s => [s.ser_id, s.serviceName]));
 
-        card.innerHTML = `
-          <div class="request-info"><span>User:</span> ${req.req_user_name}</div>
-          <div class="request-info"><span>Contact:</span> ${req.contact}</div>
-          <div class="request-info"><span>Date:</span> ${req.serviceDate}</div>
-          <div class="request-info"><span>Time:</span> ${req.serviceTime}</div>
-          <div class="request-info"><span>Area:</span> ${req.address}</div>
-          <div class="actions">
-            <button class="btn accept-btn" onclick="acceptRequest(${req.req_id}, '${req.req_user_name}')">Accept</button>
-            <button class="btn reject-btn" onclick="rejectRequest(${req.req_id}, '${req.req_user_name}')">Reject</button>
-          </div>
-          
-        `;
-        container.appendChild(card);
-      });
-    
-  }
+                const res = await fetch(`https://findhelpers.onrender.com/pendingRequests/serviceProfessionals/${spId}`);
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                const requests = await res.json();
+                console.log("Fetched pending requests:", requests);
 
-  //function to accept the request
-  function acceptRequest(reqId) {
-    updateRequestStatus(reqId, 'accepted'); //function call to change the status
-  }
+                renderRequests(requests, serviceMap);
 
-  //function to reject the request
-  function rejectRequest(reqId) {
-    updateRequestStatus(reqId, 'canceled');  //function call to change the status
-  }
+            } catch (err) {
+                console.error("Error loading pending requests:", err);
+                requestsContainer.innerHTML = '<p style="color: red;">Failed to load pending requests. Please try again.</p>';
+            }
+        }
 
-  //function to make the change in status accordingly
-  function updateRequestStatus(reqId, newStatus) {
-    fetch(`https://findhelpers.onrender.com/requests/${reqId}/status`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ newStatus: newStatus })
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Failed to update status');
-      }
-      alert(`Request ${newStatus}`);
-      location.reload(); // to refresh the page after the status update
-    })
-    .catch(error => console.error('Error:', error));
-  }
+        // --- Rendering Request Cards ---
+        function renderRequests(requests, serviceMap) {
+            requestsContainer.innerHTML = ''; // Clear loading message
 
-    window.onload=loadServiceRequests; // function call to load the serviceRequests
-  </script>
+            if (requests.length === 0) {
+                requestsContainer.innerHTML = '<p>No new service requests at the moment.</p>';
+                return;
+            }
+
+            requests.forEach(request => {
+                const card = document.createElement('div');
+                card.className = 'request-card';
+
+                const serviceName = serviceMap.get(request.ser_id) || 'Unknown Service';
+
+                card.innerHTML = `
+                    <h3>${serviceName} Request</h3>
+                    <p class="status-tag">${request.requeststatus}</p>
+                    <p><strong>Requested by:</strong> ${request.req_user_name}</p>
+                    <p><strong>Contact:</strong> ${request.contact}</p>
+                    <p><strong>Date:</strong> ${new Date(request.servicedate).toLocaleDateString()}</p>
+                    <p><strong>Time:</strong> ${request.servicetime}</p>
+                    <p><strong>Address:</strong> ${request.address}</p>
+                    <div class="actions">
+                        <button class="accept-btn" onclick="updateRequestStatus(${request.req_id}, 'accepted')">Accept</button>
+                        <button class="reject-btn" onclick="updateRequestStatus(${request.req_id}, 'rejected')">Reject</button>
+                    </div>
+                `;
+                requestsContainer.appendChild(card);
+            });
+        }
+
+        // --- Updating Request Status (Accept/Reject) ---
+        async function updateRequestStatus(reqId, newStatus) {
+            if (!confirm(`Are you sure you want to ${newStatus} this request?`)) {
+                return;
+            }
+
+            try {
+                const res = await fetch(`https://findhelpers.onrender.com/requests/${reqId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ newStatus: newStatus })
+                });
+
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    alert(`Failed to ${newStatus} request: ` + errorText);
+                    throw new Error(errorText);
+                }
+
+                const message = await res.text();
+                alert(message);
+                loadPendingRequests(loggedInSpId); 
+            } catch (err) {
+                console.error(`Error updating request status to ${newStatus}:`, err);
+                
+            }
+        }
+
+        // --- Initial Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            if (loggedInSpId) {
+                loadPendingRequests(loggedInSpId);
+            }
+        });
+    </script>
 </body>
 </html>

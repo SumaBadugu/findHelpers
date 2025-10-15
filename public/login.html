@@ -23,41 +23,70 @@
             padding: 10px;
         }
         input[type="email"], input[type="password"]{
-            width: 80%;
+            width: calc(100% - 40px); 
             padding: 10px 15px;
-            margin: 20px;
+            margin: 10px 20px; 
             border: 1px solid black;
         }
         input[type="radio"]{
             margin: 10px;
         }
         .container{
-            height: 550px;
+            height: auto; 
             width: 400px;
             margin: 10px;
             justify-content: center;
             align-items: center;
             background-color: azure;
+            padding-bottom: 20px; 
         }
         .login-btn{
-            padding: 5px 10px;
-            width: 30%;
-            margin: 20px 10px 20px 130px;
+            padding: 10px 20px; 
+            width: auto; 
+            margin: 20px auto; 
+            display: block; 
             background-color: rgb(55, 170, 55);
             font-size: 15px;
             cursor: pointer;
-            
+            border: none; 
+            color: white; 
+            border-radius: 5px; 
         }
-        .forgot{
-            padding-right: 100px;
+        .forgot-signup-links {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding: 0 20px;
         }
-        .signUp{
-            padding-left: 100px;
+        .forgot-signup-links a {
+            color: cadetblue;
+            text-decoration: none;
+        }
+        .forgot-signup-links a:hover {
+            text-decoration: underline;
         }
         .box{
             display: flex;
             align-items: center;
             justify-content: center;
+            min-height: 100vh; 
+        }
+
+        
+        @media (max-width: 480px) {
+            .container {
+                width: 95%;
+                margin: 10px;
+            }
+            input[type="email"], input[type="password"] {
+                width: calc(100% - 20px);
+                margin: 10px;
+            }
+            .forgot-signup-links {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
         }
     </style>
 </head>
@@ -68,94 +97,102 @@
 
         <h2>Login</h2>
         <form id="loginForm">
-        <input type="email" placeholder="Email" name="email"><br>
-        <input type="password" placeholder="Password" name="password"><br>
-        <p> Role : </p>
-            <input type="radio" name="role" id="user">
+        <input type="email" placeholder="Email" name="email" required><br>
+        <input type="password" placeholder="Password" name="password" required><br>
+        <p style="margin-left: 20px;"> Role : </p>
+            <input type="radio" name="role" id="user" value="user" style="margin-left: 20px;" required>
             <label for="user">User</label>
-            <input type="radio" name="role" id="serviceProfessional">
+            <input type="radio" name="role" id="serviceProfessional" value="serviceProfessional">
             <label for="serviceProfessional">Service Professional</label><br><br>
 
             <button type="submit" class="login-btn">Login</button><br><br>
             
         </form>
-        <div><span><a class="forgot" href="forgotPasswordPage.html" >Forgot Password</a></span>
-        <span><a class="signUp" href="signUp.html">Sign Up</a></span>
+        <div class="forgot-signup-links">
+            <a href="forgotPasswordPage.html" >Forgot Password</a>
+            <a href="signUp.html">Sign Up</a>
         </div>
     </div>
     </div>
     <script>
-        
-            document.getElementById("loginForm").addEventListener("submit", function(e){
+        document.getElementById("loginForm").addEventListener("submit", function(e){
             e.preventDefault();
 
             const email = document.querySelector('input[name = "email"]').value;
-            const password = document.querySelector('input[name = password]').value;
-
-            const userRadio = document.getElementById("user");
-            const spRadio = document.getElementById("serviceProfessional");
+            const password = document.querySelector('input[name = "password"]').value;
+            const role = document.querySelector('input[name = "role"]:checked')?.value;
 
             const loginData = {email, password};
 
-            if(userRadio.checked){
-                loginUser();
+            if(!role){
+                alert("Please select a role.");
+                return;
             }
 
-            else if(spRadio.checked){
+            if(role === 'user'){
+                loginUser();
+            } else if(role === 'serviceProfessional'){
                 loginSP();
             }
-            else{
-                alert("Please select role..");
-            }
-        
-
             
+            async function loginUser(){
+                try {
+                    const res = await fetch('https://findhelpers.onrender.com/login/user',{
+                        method : "POST",
+                        headers : {"Content-Type" : "application/json"},
+                        body : JSON.stringify(loginData)
+                    });
 
-            function loginUser(){
-                fetch('https://findhelpers.onrender.com/login/user',{
-                    method : "POST",
-                    headers : {"Content-Type" : "application/json"},
-                    body : JSON.stringify(loginData)
-                })
-                .then(async res =>{
                     if(!res.ok){
-                        const err = await res.text();
-                        alert("unable to login.."+err);
-                        throw new Error(err);
+                        const errorText = await res.text();
+                        alert("Login failed: " + errorText);
+                        throw new Error(errorText);
                     }
-                    return res.json();
-                })
-                .then(data =>{
-                    console.log("User login successful.." );
+                    
+                    const data = await res.json();
+                    console.log("User login successful:", data);
+                    
+                    // Store user details in localStorage
+                    localStorage.setItem('loggedInUserId', data.id);
+                    localStorage.setItem('loggedInUserName', data.name);
+                    localStorage.setItem('loggedInUserEmail', data.email);
+
                     document.getElementById("loginForm").reset();
                     window.location.href = 'userHomePage.html';
-                })
-                .catch(err =>{
-                    console.error(err);
-                })
+                } catch(err) {
+                    console.error("User login error:", err);
+                    // alert("An error occurred during login. Please check console for details."); 
+                }
             }
 
-            function loginSP(){
-                fetch('https://findhelpers.onrender.com/login/serviceProfessional',{
-                    method : "POST",
-                    headers : {"Content-Type" : "application/json"},
-                    body : JSON.stringify(loginData)
-                })
-                .then( async res =>{
+            async function loginSP(){
+                try {
+                    const res = await fetch('https://findhelpers.onrender.com/login/serviceProfessional',{
+                        method : "POST",
+                        headers : {"Content-Type" : "application/json"},
+                        body : JSON.stringify(loginData)
+                    });
+
                     if(!res.ok){
-                        const err = await res.text();
-                        alert("unable to login" + err);
-                        throw new Error(err);
+                        const errorText = await res.text();
+                        alert("Login failed: " + errorText);
+                        throw new Error(errorText);
                     }
-                    return res.json();
-                })
-                .then(data =>{
-                    console.log("Service professional login successful..");
+                    
+                    const data = await res.json();
+                    console.log("Service professional login successful:", data);
+
+                    // Store SP details in localStorage
+                    localStorage.setItem('loggedInSpId', data.id);
+                    localStorage.setItem('loggedInSpName', data.name);
+                    localStorage.setItem('loggedInSpEmail', data.email);
+
+                    document.getElementById("loginForm").reset();
                     window.location.href = 'spHomePage.html';
-                })
-                .catch(err =>{
-                    console.error(err);
-                })
+                } catch(err) {
+                    console.error("Service professional login error:", err);
+                    // alert("An error occurred during login. Please check console for details."); 
+                }
             }
         });
     </script>

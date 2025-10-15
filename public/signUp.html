@@ -24,17 +24,18 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            min-height: 100vh; 
         }
         .container{
-            height:800px;
+            height:auto; 
             width: 380px;
             background-color: azure;
-
+            padding-bottom: 20px; 
         }
         input[type="text"], input[type="email"], input[type="tel"], input[type="password"]{
             padding:10px;
-            margin:20px;
-            width: 80%;
+            margin:10px 20px; 
+            width: calc(100% - 40px); 
             border: 1px solid black;
 
         }
@@ -43,24 +44,47 @@
         }
         p{
             font-size: 18px;
-            margin: 10px;
+            margin: 10px 20px; 
 
         }
 
         .signUp-btn{
             background-color: rgb(55, 170, 55);
-            padding: 5px 10px;
-            margin: 20px 10px 20px 150px;
+            padding: 10px 20px; 
+            margin: 20px auto; 
+            display: block; 
             font-size: 15px;
             cursor: pointer;
-
+            border: none; 
+            color: white; 
+            border-radius: 5px;
         }
         .login-btn{
             text-align: center;
+            margin-top: 15px; 
+        }
+
+        
+        @media (max-width: 480px) {
+            .container {
+                width: 95%;
+                margin: 10px;
+            }
+            input[type="text"], input[type="email"], input[type="tel"], input[type="password"] {
+                width: calc(100% - 20px); 
+                margin: 10px;
+            }
+            p {
+                margin: 10px;
+            }
+            #service {
+                width: calc(100% - 20px) !important; 
+                margin-left: 10px !important;
+            }
         }
 
 
-    </style>>
+    </style>
 </head>
 <body>
     <div class="box">
@@ -68,22 +92,22 @@
             <div class="header">FIND HELPERS</div>
             <h2>Sign Up</h2>
             <form id="signupForm">
-                <input type="text" placeholder="Name" name="name" class="inputs">
-                <input type="email" placeholder="Email" name="email" class="inputs">
-                <input type="password" placeholder="Password" name="password" class="inputs">
-                <input type="tel" placeholder="Contact" name="contact" class="inputs">
+                <input type="text" placeholder="Name" name="name" class="inputs" required>
+                <input type="email" placeholder="Email" name="email" class="inputs" required>
+                <input type="password" placeholder="Password" name="password" class="inputs" required>
+                <input type="tel" placeholder="Contact" name="contact" class="inputs" required>
                 <p>Role : </p>
-                <input type="radio" name="role" value="user" id="user">
+                <input type="radio" name="role" value="user" id="user" required>
                 <label for="user" >User</label>
                 <input type="radio" name="role" value="serviceProfessional" id="serviceProfessional">
                 <label for="serviceProfessional">Service Professional</label>
                 <div id="serviceContainer" style="display: none;  padding: 10px;">
                     <p>Select Service: </p>
                     <label for="service"></label>
-                    <select id="service" name="service" style="width: 80%;  margin-left: 25px; padding: 10px;">
+                    <select id="service" name="service" style="width: calc(100% - 40px);  margin-left: 20px; padding: 10px;">
                         <option value="">Select</option>
                     </select>
-                    <input type="text" placeholder="area" name="area" class="inputs">
+                    <input type="text" placeholder="Area" name="area" class="inputs">
                 </div>
                 <button type="submit" class="signUp-btn">Create</button>
             </form>
@@ -94,10 +118,15 @@
         const userRadio = document.getElementById("user");
         const spRadio = document.getElementById("serviceProfessional");
         const serviceContainer = document.getElementById("serviceContainer");
+        const serviceDropdown = document.getElementById('service');
+        const spAreaInput = document.querySelector('input[name="area"]');
+
 
         userRadio.addEventListener("change", ()=>{
             if(userRadio.checked){
                 serviceContainer.style.display = "none";
+                serviceDropdown.removeAttribute('required'); // Remove required for user
+                spAreaInput.removeAttribute('required');
             }
         });
 
@@ -105,14 +134,18 @@
             if(spRadio.checked){
                 serviceContainer.style.display = "block";
                 loadServices();
+                serviceDropdown.setAttribute('required', 'required'); // Add required for SP
+                spAreaInput.setAttribute('required', 'required');
             }
         });
 
         function loadServices(){
+            // Clear existing options first
+            serviceDropdown.innerHTML = '<option value="">Select</option>';
+
             fetch('https://findhelpers.onrender.com/services')
             .then(res=> res.json())
             .then(data =>{
-                const serviceDropdown = document.getElementById('service');
                 data.forEach(service =>{
                     const option = document.createElement('option');
                     option.value = service.ser_id;
@@ -121,7 +154,8 @@
                 });
             })
             .catch(err=>{
-                console.error(err);
+                console.error("Error loading services:", err);
+                alert("Failed to load services. Please try again later.");
             })
         }
 
@@ -134,17 +168,20 @@
             const password = document.querySelector('input[name = "password"]').value;
             const role = document.querySelector('input[name = "role"]:checked')?.value;
             
-
             if(!role){
-                alert(`Please select a role..`);
+                alert(`Please select a role.`);
                 return;
             }
 
             if(role === 'serviceProfessional'){
-                const serviceId = document.querySelector('select[name = "service"]')?.value;
-                const area = document.querySelector('input[name="area"]').value;
+                const serviceId = serviceDropdown.value;
+                const area = spAreaInput.value;
                 if(!serviceId){
-                    alert(`Please select a service..`);
+                    alert(`Please select a service.`);
+                    return;
+                }
+                if(!area){
+                    alert(`Please enter your service area.`);
                     return;
                 }
 
@@ -155,45 +192,58 @@
                     headers : {'Content-Type' : 'application/json'} ,
                     body : JSON.stringify(spData)
                 })
-                .then(res =>{
+                .then(async res =>{
+                    const responseBody = await res.json(); // Read response body as JSON
                     if(!res.ok){
-                        console.log("Unable to SignUp..")
+                        // console.log("Unable to SignUp..");
+                        alert("Signup failed: " + responseBody.message || "Unknown error");
+                        throw new Error(responseBody.message || "Signup failed");
                     }
-                    //return;
+                    return responseBody;
                 })
                 .then(data =>{
-                    console.log('Service Professional Signed Up');
+                    console.log('Service Professional Signed Up:', data);
+                    localStorage.setItem('loggedInSpId', data.id);
+                    localStorage.setItem('loggedInSpName', data.name);
+                    localStorage.setItem('loggedInSpEmail', data.email);
+                    alert("Service Professional signup successful!");
                     window.location.href = 'spHomePage.html';
                 })
                 .catch(err =>{
-                    console.error(err);
+                    console.error("Service Professional signup error:", err);
+                    // alert("An error occurred during signup."); 
                 });
             }
-            if(role === 'user'){
+            else if(role === 'user'){ // Use else if for clarity
                 const userData = {name, email, password, contact}
                 fetch('https://findhelpers.onrender.com/signUp/user',{
                     method : "POST",
                     headers : {'Content-Type' : 'application/json'},
                     body : JSON.stringify(userData)
                 })
-                .then(res =>{
+                .then(async res =>{
+                    const responseBody = await res.json(); // Read response body as JSON
                     if(!res.ok){
-                        console.log("Unable to signUp..");
+                        // console.log("Unable to signUp..");
+                        alert("Signup failed: " + responseBody.message || "Unknown error");
+                        throw new Error(responseBody.message || "Signup failed");
                     }
-                    return;
+                    return responseBody;
                 })
                 .then(data =>{
-                    console.log("User signed Up..");
+                    console.log("User signed Up:", data);
+                    localStorage.setItem('loggedInUserId', data.id);
+                    localStorage.setItem('loggedInUserName', data.name);
+                    localStorage.setItem('loggedInUserEmail', data.email);
+                    alert("User signup successful!");
                     window.location.href = 'userHomePage.html';
                 })
                 .catch(err=>{
-                    console.error(err);
+                    console.error("User signup error:", err);
+                    // alert("An error occurred during signup."); 
                 });
-
             }
         });
-
-        
     </script>
 </body>
 </html>

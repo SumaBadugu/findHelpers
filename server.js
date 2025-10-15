@@ -2,11 +2,11 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const path = require('path');
-const { Pool } = require('pg'); // Keep this
+const { Pool } = require('pg');
 
 app.use(express.json());
 app.use(cors());
-app.use(express.static('public'));
+app.use(express.static('public')); // Assuming your HTML files are in a 'public' folder
 
 // Connecting database
 const pool = new Pool({
@@ -37,12 +37,18 @@ app.post('/signUp/user', (req, res) => {
         if (results.rowCount > 0) {
             return res.status(409).send("User with this email already exists");
         }
-        pool.query('insert into users (user_name, user_email, user_password, user_contact ) values ($1,$2,$3,$4)', [name, email, password, contact], (err, results) => {
+        pool.query('insert into users (user_name, user_email, user_password, user_contact ) values ($1,$2,$3,$4) RETURNING user_id, user_name, user_email', [name, email, password, contact], (err, results) => {
             if (err) {
                 console.error(err);
                 return res.status(500).send("Server error during user signup.");
             }
-            res.status(200).send("User signUp successful..");
+            // Send back the created user's data
+            res.status(200).json({
+                message: "User signUp successful..",
+                id: results.rows[0].user_id,
+                name: results.rows[0].user_name,
+                email: results.rows[0].user_email
+            });
         });
     });
 });
@@ -62,12 +68,18 @@ app.post('/signUp/serviceProfessional', (req, res) => {
             return res.status(409).send("Service professional with this email already exists");
         }
         console.log(name, email, password, contact);
-        pool.query('insert into serviceprofessionals (sp_name, sp_email, sp_password, sp_contact,ser_id, sp_area ) values ($1,$2,$3,$4,$5,$6)', [name, email, password, contact, serviceId, area], (err, results) => {
+        pool.query('insert into serviceprofessionals (sp_name, sp_email, sp_password, sp_contact,ser_id, sp_area ) values ($1,$2,$3,$4,$5,$6) RETURNING sp_id, sp_name, sp_email', [name, email, password, contact, serviceId, area], (err, results) => {
             if (err) {
                 console.error(err);
                 return res.status(500).send("Server error during service professional signup.");
             }
-            res.status(200).send("Service Professional signUp successful..");
+            // Send back the created SP's data
+            res.status(200).json({
+                message: "Service Professional signUp successful..",
+                id: results.rows[0].sp_id,
+                name: results.rows[0].sp_name,
+                email: results.rows[0].sp_email
+            });
         });
     });
 });
@@ -92,6 +104,7 @@ app.post('/login/user', (req, res) => {
         if (password !== user.user_password) {
             return res.status(401).send("Incorrect password"); // Use return here
         }
+        // CORRECTED: Ensure user_id, user_name, user_email are sent for client-side storage
         res.status(200).json({
             message: "Login successful",
             id: user.user_id,
@@ -120,6 +133,7 @@ app.post('/login/serviceProfessional', (req, res) => {
         if (password !== serviceProfessional.sp_password) {
             return res.status(401).send("Incorrect password");
         }
+        // CORRECTED: Ensure sp_id, sp_name, sp_email are sent for client-side storage
         res.status(200).json({
             message: "Login successful",
             id: serviceProfessional.sp_id,
@@ -181,7 +195,7 @@ app.get('/services', (req, res) => {
             return res.status(500).send('Error in getting services.');
         }
         else {
-            res.json(results.rows); // <--- CORRECTED: Access .rows for the data
+            res.json(results.rows);
         }
     });
 });
@@ -195,7 +209,7 @@ app.get('/serviceProfessionals/:ser_id', (req, res) => {
             return res.status(500).send(`Error in getting the service professional with id : ${serviceId}`);
         }
         else {
-            res.json(results.rows); // <--- CORRECTED: Access .rows for the data
+            res.json(results.rows);
         }
     });
 });
@@ -215,7 +229,7 @@ app.post('/requests', (req, res) => {
         else {
             res.status(200).send("Request details stored successfully.");
         }
-    }); // Added missing semicolon
+    });
 });
 
 // To get all the requests made by a particular user
@@ -227,7 +241,7 @@ app.get('/requests/users/:user_id', (req, res) => {
             return res.status(500).send(`Unable to get request data of user with id ${userId}`);
         }
         else {
-            res.json(results.rows); // <--- CORRECTED: Access .rows for the data
+            res.json(results.rows);
         }
     });
 });
@@ -236,16 +250,13 @@ app.get('/requests/users/:user_id', (req, res) => {
 // To get all pending requests received by a particular service professional
 app.get('/pendingRequests/serviceProfessionals/:sp_id', (req, res) => {
     const sp_id = req.params.sp_id;
-    // IMPORTANT: PostgreSQL uses single quotes for string literals, not double quotes.
-    // Also, comparing an ENUM type needs a string.
-    pool.query('select * from requests where sp_id=$1 and requestStatus = \'pending\'', [sp_id], (err, results) => { // <--- CORRECTED: 'pending' instead of "pending"
+    pool.query('select * from requests where sp_id=$1 and requestStatus = \'pending\'', [sp_id], (err, results) => {
         if (err) {
             console.error(err);
-            // This error message had a typo 'ser_id' instead of 'sp_id'
             return res.status(500).send(`Unable to get requests data received by the service professional with id : ${sp_id}`);
         }
         else {
-            res.json(results.rows); // <--- CORRECTED: Access .rows for the data
+            res.json(results.rows);
         }
     });
 });
@@ -256,11 +267,10 @@ app.get('/requests/serviceProfessionals/:sp_id', (req, res) => {
     pool.query('select * from requests where sp_id=$1', [sp_id], (err, results) => {
         if (err) {
             console.error(err);
-            // This error message had a typo 'ser_id' instead of 'sp_id'
             return res.status(500).send(`Unable to get requests data received by the service professional with id : ${sp_id}`);
         }
         else {
-            res.json(results.rows); // <--- CORRECTED: Access .rows for the data
+            res.json(results.rows);
         }
     });
 });
@@ -269,7 +279,6 @@ app.get('/requests/serviceProfessionals/:sp_id', (req, res) => {
 app.put('/requests/:req_id/status', (req, res) => {
     const reqId = req.params.req_id;
     const { newStatus } = req.body;
-    // Added validation for newStatus
     if (!newStatus) {
         return res.status(400).send("New status is required.");
     }
@@ -279,8 +288,7 @@ app.put('/requests/:req_id/status', (req, res) => {
             console.error(err);
             return res.status(500).send("Error in updating the data.");
         }
-        // In node-postgres, `rowCount` is used for affected rows
-        else if (results.rowCount === 0) { // <--- CORRECTED: `rowCount` instead of `affectedRows`
+        else if (results.rowCount === 0) {
             return res.status(404).send(`No request found with id ${reqId}`);
         }
         else {
@@ -292,5 +300,5 @@ app.put('/requests/:req_id/status', (req, res) => {
 const port = process.env.PORT || 4200;
 
 app.listen(port, () => {
-    console.log("Server is running on port", port); // Added port to log
+    console.log("Server is running on port", port);
 });

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Available Services</title>
   <style>
+    
     * {
       box-sizing: border-box;
     }
@@ -18,17 +19,19 @@
       flex-direction: column;
     }
    
+    
     header {
       background-color: #21778f;
       color: white;
-      padding: 20px ;
+      padding: 20px;
       text-align: center;
       font-size: 1.5rem;
       font-weight: 600;
     }
 
+   
     main {
-      flex: 1;
+      flex: 1; 
       max-width: 900px;
       margin: 40px auto;
       padding: 0 20px;
@@ -39,6 +42,8 @@
       font-weight: 700;
       color: #18126d;
     }
+
+    /* Search Bar */
     .search-bar {
       max-width: 400px;
       margin: 0 auto 40px;
@@ -57,6 +62,8 @@
     .search-bar input:focus {
       border-color: #2b6e79;
     }
+
+    
     .services-container {
       display: flex;
       flex-wrap: wrap;
@@ -104,33 +111,105 @@
     .book-btn:hover {
       background-color: #2b6e79;
     }
+
+    
+    #professionalsContainer {
+        margin-top: 40px;
+        text-align: center;
+    }
+    #professionalsContainer h2 {
+        color: #1b5e6a;
+        margin-bottom: 20px;
+    }
+    #professionalsContainer .pro-card {
+        background: white;
+        padding: 20px;
+        margin: 10px auto; 
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        max-width: 400px; 
+        text-align: left;
+    }
+    #professionalsContainer .pro-card button {
+        background:#1b5e6a; 
+        color:white; 
+        border:none; 
+        padding:8px 12px; 
+        border-radius:8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    #professionalsContainer .pro-card button:hover {
+        background-color: #2b6e79;
+    }
+
+
+    
     footer {
       background-color: #21778f;
       color: white;
       padding: 15px ;
       text-align: center;
       font-size: 0.9rem;
+      margin-top: auto; 
     }
+
+    
     .popup{
       display: none;
       z-index : 9999;
       background-color: white;
       position:fixed; 
-      top:20%; 
+      top:50%;
       left:50%;
-       transform:translate(-50%, -20%);
-  background:white;
-   padding:20px;
-    box-shadow:0 5px 20px rgba(0,0,0,0.2);
-     border-radius:10px; 
-     
+      transform:translate(-50%, -50%);
+      background:white;
+      padding:20px;
+      box-shadow:0 5px 20px rgba(0,0,0,0.2);
+      border-radius:10px; 
+      max-width: 400px;
+      width: 90%;
     }
-    .request{
-      width:100%; 
-      margin:10px 0;
-      padding:8px
+    .popup h3, .popup p {
+        text-align: center;
+        margin-bottom: 15px;
+    }
+    .popup #selectedProfessionalName {
+        font-weight: bold;
+        color: #21778f;
+    }
+    .popup input.request{
+      width:calc(100% - 20px);
+      margin:10px 10px;
+      padding:8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .popup button {
+        padding: 10px 20px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+    }
+    .popup button.send-btn {
+        background:#1b5e6a; 
+        color:white;
+        margin-left: calc(50% - 100px); 
+    }
+    .popup button.cancel-btn {
+        margin-left:10px; 
+        background:#ccc;
+        color: #333;
+    }
+    .popup button.send-btn:hover {
+        background-color: #2b6e79;
+    }
+    .popup button.cancel-btn:hover {
+        background-color: #bbb;
+    }
 
-    }
+
+    
     @media (max-width: 600px) {
       .services-container {
         flex-direction: column;
@@ -141,6 +220,18 @@
       }
       .search-bar {
         max-width: 100%;
+      }
+      #professionalsContainer .pro-card {
+          width: 90%;
+      }
+      .popup button.send-btn {
+          margin-left: 0;
+          width: calc(50% - 5px); 
+          margin-bottom: 10px;
+      }
+      .popup button.cancel-btn {
+          margin-left: 10px;
+          width: calc(50% - 15px);
       }
     }
   </style>
@@ -159,23 +250,30 @@
   </div>
 
   <div class="services-container" id="servicesContainer">
-    
+    <!-- Service cards will be loaded here by JavaScript -->
   </div>
-  <div id="professionalsContainer"></div>
+  
+  <div id="professionalsContainer">
+    <!-- Service professionals will be displayed here by JavaScript -->
+  </div>
 
+<!-- Request Popup -->
 <div id="popup" class="popup">
   <h3>Send Request</h3>
   <p id="selectedProfessionalName"></p>
-  <input type="hidden" id="user_id_popup" class="request"/>
-  <input type="hidden" id="sp_id_popup" class="request"/>
-  <input type="hidden" id="ser_id_popup" class="request"/>
-  <input type="text" placeholder="Your Name" class="request" />
-  <input type="tel" placeholder="Mobile number" class="request" />
-  <input type="date" placeholder="Enter date" class="request" />
-  <input type="time" placeholder="Enter time" class="request" />
-    <input type="text" placeholder="Your Address" class="request" />
-  <button onclick="sendRequest()" style="background:#1b5e6a; color:white; border:none; padding:10px 20px; border-radius:8px;">Send</button>
-  <button onclick="closePopup()" style="margin-left:10px; background:#ccc; border:none; padding:10px 20px; border-radius:8px;">Cancel</button>
+  
+  <!-- Hidden inputs to store IDs -->
+  <input type="hidden" id="user_id_popup"/> 
+  <input type="hidden" id="sp_id_popup"/>
+  <input type="hidden" id="ser_id_popup"/>
+
+  <input type="text" placeholder="Your Name" class="request" id="req_user_name_popup" required/>
+  <input type="tel" placeholder="Mobile number" class="request" id="contact_popup" required/>
+  <input type="date" placeholder="Enter date" class="request" id="serviceDate_popup" required/>
+  <input type="time" placeholder="Enter time" class="request" id="serviceTime_popup" required/>
+  <input type="text" placeholder="Your Address" class="request" id="address_popup" required/>
+  <button onclick="sendRequest()" class="send-btn">Send</button>
+  <button onclick="closePopup()" class="cancel-btn">Cancel</button>
 </div>
 
 </main>
@@ -185,44 +283,61 @@
 </footer>
 
 <script>
-  
-  let services = [];
+  // --- Initialization and User Authentication ---
+  const loggedInUserId = localStorage.getItem('loggedInUserId');
+  const loggedInUserName = localStorage.getItem('loggedInUserName');
 
+  if (!loggedInUserId) {
+      alert('You are not logged in. Please log in to book services.');
+      window.location.href = 'login.html';
+  } else {
+      document.getElementById('req_user_name_popup').value = loggedInUserName || '';
+      document.getElementById('user_id_popup').value = loggedInUserId;
+  }
+  
+  let services = []; // Stores all fetched services
+  let serviceProfessionals = []; // Stores professionals for a selected service
+
+  // --- Service Icons Mapping  ---
   const serviceIcons= {
     "Plumbing Repair" : "🔧",
     "Home Cleaning" : "🧹",
     "Electrical Work" : "💡",
     "AC Service" : "❄️",
     "Gardening" : "🌿",
-    "Painting" : "🎨"
-  }
+    "Painting" : "🎨",
+    "Other" : "👷" 
+  };
 
-  let serviceProfessionals = [];
-
-
-//to load the services
+  // --- Fetching Services from API ---
   async function loadServices(){
     try{
       const res = await fetch('https://findhelpers.onrender.com/services');
+      if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+      }
       const data = await res.json();
       services = data;
       renderServices(services);
     }
     catch(err){
-      console.error("Error in fetching services",err);
+      console.error("Error in fetching services:", err);
+      alert("Failed to load services. Please try again.");
     }
   }
 
-  
-
+  // --- Rendering Services on Page ---
   const servicesContainer = document.getElementById("servicesContainer");
   const searchInput = document.getElementById("searchInput");
 
-  // to display the services
   function renderServices(filteredServices) {
-    servicesContainer.innerHTML = "";
+    servicesContainer.innerHTML = ""; // Clear previous services
+    if (filteredServices.length === 0) {
+        servicesContainer.innerHTML = "<p style='text-align: center; width: 100%;'>No services found matching your search.</p>";
+        return;
+    }
     filteredServices.forEach(service => {
-      const icon = serviceIcons[service.serviceName] || "🛠️"
+      const icon = serviceIcons[service.serviceName] || serviceIcons["Other"]; 
       const card = document.createElement("div");
       card.className = "service-card";
       card.innerHTML = `
@@ -230,121 +345,144 @@
         <div class="service-name">${service.serviceName}</div>
         <button class="book-btn" onclick="bookService(${service.ser_id})">Book</button>
       `;
-
       servicesContainer.appendChild(card);
     });
   }
-//to filter services after searching for any particular service
+
+  // --- Filtering Services via Search Input ---
   function filterServices() {
     const query = searchInput.value.toLowerCase();
     const filtered = services.filter(s => s.serviceName.toLowerCase().includes(query));
     renderServices(filtered);
   }
-// to book service
+
+  // --- Booking a Service (fetching professionals for that service) ---
   async function bookService(serviceId) {
     console.log("Booking service with ID:", serviceId);
     const selectedService = services.find(s => s.ser_id === serviceId);
-  if (!selectedService) return;
-  selectedServiceName = selectedService.serviceName; 
-  console.log("Selected Service Name:", selectedServiceName);
+    if (!selectedService) {
+        alert("Service not found.");
+        return;
+    }
+    const selectedServiceName = selectedService.serviceName; 
 
-  try{
-    const resp = await fetch(`https://findhelpers.onrender.com/serviceProfessionals/${serviceId}`);
-    serviceProfessionals = await resp.json();
-    console.log("Fetched professionals:", serviceProfessionals);
-    showProfessionals(selectedServiceName);
+    try{
+        const resp = await fetch(`https://findhelpers.onrender.com/serviceProfessionals/${serviceId}`);
+        if (!resp.ok) {
+            throw new Error(`HTTP error! status: ${resp.status}`);
+        }
+        serviceProfessionals = await resp.json();
+        showProfessionals(selectedServiceName, serviceId); 
+    }
+    catch(err){
+        console.error("Error in fetching service professionals:", err);
+        alert("Failed to load professionals for this service.");
+    }
   }
-  catch(err){
-    console.error("Error in fetching service professionals",err);
 
-  }
-    
-  }
-
-  //to show the professionals based on the selected service
-  function showProfessionals(serviceName) {
-  const filteredPros = serviceProfessionals;
+  // --- Displaying Available Professionals ---
+  function showProfessionals(serviceName, serviceId) {
   const container = document.getElementById("professionalsContainer");
   container.innerHTML = `<h2>Available Professionals for ${serviceName}</h2>`;
   
-  filteredPros.forEach(pro => {
+  if (serviceProfessionals.length === 0) {
+      container.innerHTML += "<p>No professionals available for this service yet.</p>";
+      return;
+  }
+
+  serviceProfessionals.forEach(pro => {
     const proCard = document.createElement("div");
-    proCard.style.cssText = "background:white; padding:20px; margin:10px 0; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1);";
+    proCard.className = "pro-card"; 
     proCard.innerHTML = `
       <strong>${pro.sp_name}</strong><br/>
-      Address: ${pro.sp_area}<br/>
+      Area: ${pro.sp_area}<br/>
       Contact: ${pro.sp_contact}<br/><br/>
-      <button onclick="openPopup('${encodeURIComponent(JSON.stringify(pro))}')"
-        style="background:#1b5e6a; color:white; border:none; padding:8px 12px; border-radius:8px;">Send Request</button>
+      <button onclick="openPopup('${encodeURIComponent(JSON.stringify(pro))}', ${serviceId})">Send Request</button>
     `;
     container.appendChild(proCard);
   });
 }
 
-// to open the popup
-function openPopup(proStr) {
-  const pro = JSON.parse(decodeURIComponent(proStr))
+// --- Managing Request Popup ---
+function openPopup(proStr, serviceId) {
+  const pro = JSON.parse(decodeURIComponent(proStr));
   document.getElementById("popup").style.display = "block";
   
   document.getElementById("selectedProfessionalName").innerText = `To: ${pro.sp_name}`;
   
-  document.getElementById("user_id_popup").value = 1; // temporarily...
   document.getElementById("sp_id_popup").value = pro.sp_id;
-  document.getElementById("ser_id_popup").value = pro.ser_id;
+  document.getElementById("ser_id_popup").value = serviceId;
   
+  // Set min date to today for serviceDate_popup
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0'); 
+  const dd = String(today.getDate()).padStart(2, '0');
+  document.getElementById('serviceDate_popup').min = `${yyyy}-${mm}-${dd}`;
 }
 
-// to close the popup
 function closePopup() {
   document.getElementById("popup").style.display = "none";
+  // Clear form fields in popup, reset name to logged-in user's name
+  document.getElementById('req_user_name_popup').value = loggedInUserName || ''; 
+  document.getElementById('contact_popup').value = '';
+  document.getElementById('serviceDate_popup').value = '';
+  document.getElementById('serviceTime_popup').value = '';
+  document.getElementById('address_popup').value = '';
 }
 
-//To send the new request to service professional
-function sendRequest() {
-  const inputs = document.querySelectorAll(".request");
-  const [user_idInput, sp_idInput, ser_idInput, nameInput, contactInput, dateInput, timeInput, addressInput] = inputs;
+// --- Sending the Service Request ---
+async function sendRequest() {
+  const reqUserName = document.getElementById('req_user_name_popup').value;
+  const contact = document.getElementById('contact_popup').value;
+  const serviceDate = document.getElementById('serviceDate_popup').value;
+  const serviceTime = document.getElementById('serviceTime_popup').value;
+  const address = document.getElementById('address_popup').value;
 
+  if (!reqUserName || !contact || !serviceDate || !serviceTime || !address) {
+      alert("Please fill in all the request details.");
+      return;
+  }
 
   const requestData = {
-    user_id : user_idInput.value,
-    sp_id : sp_idInput.value,
-    ser_id : ser_idInput.value,
-    req_user_name: nameInput.value,
-    contact: contactInput.value,
-    serviceDate: dateInput.value,
-    serviceTime: timeInput.value,
-    address: addressInput.value,
-                   
+    user_id : document.getElementById("user_id_popup").value,
+    sp_id : document.getElementById("sp_id_popup").value,
+    ser_id : document.getElementById("ser_id_popup").value,
+    req_user_name: reqUserName,
+    contact: contact,
+    serviceDate: serviceDate,
+    serviceTime: serviceTime,
+    address: address,
   };
 
-  console.log("Request data:", requestData); 
+  console.log("Sending request data:", requestData); 
 
-  fetch('https://findhelpers.onrender.com/requests',{
-    method : "POST",
-    headers : {
-      "Content-Type" : "application/json"
-    },
-    body: JSON.stringify(requestData)
-  })
-  .then(res => res.text())
-  .catch(err =>{
-    console.error("Failed to send request: ",err);
-  });
-  
-  
+  try {
+    const res = await fetch('https://findhelpers.onrender.com/requests',{
+      method : "POST",
+      headers : {
+        "Content-Type" : "application/json"
+      },
+      body: JSON.stringify(requestData)
+    });
 
-  user_idInput.value = "";
-  sp_idInput.value ="";
-  ser_idInput.value="";
-  nameInput.value = "";
-  contactInput.value="";
-  dateInput.value = "";
-  timeInput.value="";
-  addressInput.value = "";
-  closePopup();
+    if (!res.ok) {
+        const errorText = await res.text();
+        alert("Failed to send request: " + errorText);
+        throw new Error(errorText);
+    }
+    
+    const message = await res.text();
+    alert(message);
+    closePopup(); // Close on success
+  } catch (err) {
+    console.error("Error sending request:", err);
+    
+  }
 }
 
-  loadServices();
+  // --- Initial Load ---
+  document.addEventListener('DOMContentLoaded', loadServices); // Load services when the DOM is ready
 </script>
 
 </body>

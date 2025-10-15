@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>serviceProfessional Home</title>
+  <title>Service Professional Home</title>
   <style>
     
     * {
@@ -26,7 +26,29 @@
       text-align: center;
       font-size: 1.5rem;
       font-weight: 600;
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
     }
+    header .header-title { 
+        flex-grow: 1;
+        text-align: center;
+    }
+
+    .logout-btn { 
+        background-color: #d9534f;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: background-color 0.2s ease;
+    }
+    .logout-btn:hover {
+        background-color: #c9302c;
+    }
+
 
     main {
       flex: 1;
@@ -66,7 +88,7 @@
 
     .card:hover {
       transform: translateY(-8px);
-      box-shadow: 0 8px 20px rgba(13, 1, 1, 0.15);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15); 
     }
 
     .card-icon {
@@ -104,22 +126,31 @@
       .card {
         width: 90%;
       }
+      header {
+            padding: 20px; 
+            flex-direction: column; 
+            gap: 10px; 
+        }
+        header .header-title {
+            text-align: center;
+        }
     }
   </style>
 </head>
 <body>
 
   <header>
-    FIND HELPERS
+    <div class="header-title">FIND HELPERS</div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
   </header>
 
   <main>
-    <div class="welcome-msg">Welcome back!!!</div>
+    <div class="welcome-msg" id="welcomeMessage">Welcome back, Service Professional!</div>
 
     <div class="hero-icon" aria-label="Service icon">🛠️</div>
 
     <div class="cards-container">
-      <div class="card" onclick="location.href='spRequestsPage.html'">
+      <div class="card" onclick="location.href='spRequestPage.html'">
         <div class="card-icon" aria-label="Requests Icon">📩</div>
         <div class="card-title">Service Requests</div>
         <div class="card-info">Respond to new job requests</div>
@@ -138,8 +169,24 @@
   </footer>
 
   <script>
+    // Check if professional is logged in
+    const spId = localStorage.getItem('loggedInSpId');
+    const spName = localStorage.getItem('loggedInSpName');
     
-    
+    if (!spId) {
+        alert('You are not logged in as a Service Professional. Please log in.');
+        window.location.href = 'login.html'; // Redirect to login page
+    } else {
+        document.getElementById('welcomeMessage').innerText = `Welcome back, ${spName || 'Service Professional'}!`;
+    }
+
+    function logout() {
+        localStorage.removeItem('loggedInSpId');
+        localStorage.removeItem('loggedInSpName');
+        localStorage.removeItem('loggedInSpEmail');
+        alert('You have been logged out.');
+        window.location.href = 'login.html';
+    }
   </script>
 
 </body>
