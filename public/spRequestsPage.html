@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Service Professional Requests</title>
     <style>
-        
+       
         * {
             box-sizing: border-box;
         }
@@ -19,7 +19,6 @@
             flex-direction: column;
         }
 
-        
         header {
             background-color: #21778f;
             color: white;
@@ -29,7 +28,6 @@
             font-weight: 600;
         }
 
-       
         main {
             flex: 1; 
             max-width: 900px;
@@ -109,7 +107,6 @@
             margin-bottom: 10px;
         }
 
-       
         footer {
             background-color: #21778f;
             color: white;
@@ -119,7 +116,6 @@
             margin-top: auto; 
         }
 
-        
         @media (max-width: 600px) {
             .request-card {
                 width: 90%;
@@ -170,12 +166,16 @@
             try {
                 // Fetch services to map ser_id to serviceName
                 const servicesRes = await fetch('https://findhelpers.onrender.com/services');
+                if (!servicesRes.ok) {
+                    throw new Error(`Failed to fetch services: ${servicesRes.statusText}`);
+                }
                 const servicesData = await servicesRes.json();
+               
                 const serviceMap = new Map(servicesData.map(s => [s.ser_id, s.serviceName]));
 
                 const res = await fetch(`https://findhelpers.onrender.com/pendingRequests/serviceProfessionals/${spId}`);
                 if (!res.ok) {
-                    throw new Error(`HTTP error! status: ${res.status}`);
+                    throw new Error(`Failed to fetch pending requests: ${res.statusText}`);
                 }
                 const requests = await res.json();
                 console.log("Fetched pending requests:", requests);
@@ -184,7 +184,7 @@
 
             } catch (err) {
                 console.error("Error loading pending requests:", err);
-                requestsContainer.innerHTML = '<p style="color: red;">Failed to load pending requests. Please try again.</p>';
+                requestsContainer.innerHTML = `<p style="color: red;">Failed to load pending requests. ${err.message || 'Please try again.'}</p>`;
             }
         }
 
@@ -201,6 +201,7 @@
                 const card = document.createElement('div');
                 card.className = 'request-card';
 
+                
                 const serviceName = serviceMap.get(request.ser_id) || 'Unknown Service';
 
                 card.innerHTML = `
@@ -213,7 +214,7 @@
                     <p><strong>Address:</strong> ${request.address}</p>
                     <div class="actions">
                         <button class="accept-btn" onclick="updateRequestStatus(${request.req_id}, 'accepted')">Accept</button>
-                        <button class="reject-btn" onclick="updateRequestStatus(${request.req_id}, 'rejected')">Reject</button>
+                        <button class="reject-btn" onclick="updateRequestStatus(${request.req_id}, 'canceled')">Reject</button>
                     </div>
                 `;
                 requestsContainer.appendChild(card);
@@ -222,7 +223,7 @@
 
         // --- Updating Request Status (Accept/Reject) ---
         async function updateRequestStatus(reqId, newStatus) {
-            if (!confirm(`Are you sure you want to ${newStatus} this request?`)) {
+            if (!confirm(`Are you sure you want to ${newStatus === 'canceled' ? 'reject' : newStatus} this request?`)) {
                 return;
             }
 
@@ -243,10 +244,10 @@
 
                 const message = await res.text();
                 alert(message);
-                loadPendingRequests(loggedInSpId); 
+                loadPendingRequests(loggedInSpId); // Reload to reflect changes
             } catch (err) {
                 console.error(`Error updating request status to ${newStatus}:`, err);
-                
+                alert(`An error occurred while updating the request status: ${err.message}`);
             }
         }
 

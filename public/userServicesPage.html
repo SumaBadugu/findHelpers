@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Available Services</title>
   <style>
-    
+    /* Your existing CSS for userServicesPage.html */
     * {
       box-sizing: border-box;
     }
@@ -251,6 +251,7 @@
 
   <div class="services-container" id="servicesContainer">
     <!-- Service cards will be loaded here by JavaScript -->
+    <p>Loading services...</p>
   </div>
   
   <div id="professionalsContainer">
@@ -306,7 +307,7 @@
     "AC Service" : "❄️",
     "Gardening" : "🌿",
     "Painting" : "🎨",
-    "Other" : "👷" 
+    "Other" : "👷" // Default icon
   };
 
   // --- Fetching Services from API ---
@@ -314,7 +315,7 @@
     try{
       const res = await fetch('https://findhelpers.onrender.com/services');
       if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
+          throw new Error(`Failed to fetch services: ${res.statusText}`);
       }
       const data = await res.json();
       services = data;
@@ -322,7 +323,8 @@
     }
     catch(err){
       console.error("Error in fetching services:", err);
-      alert("Failed to load services. Please try again.");
+      servicesContainer.innerHTML = `<p style="text-align: center; width: 100%; color: red;">Failed to load services. ${err.message || 'Please try again.'}</p>`;
+      // alert("Failed to load services. Please try again."); // Removed redundant alert
     }
   }
 
@@ -337,6 +339,7 @@
         return;
     }
     filteredServices.forEach(service => {
+      // Ensure service.serviceName is precisely matched with keys in serviceIcons
       const icon = serviceIcons[service.serviceName] || serviceIcons["Other"]; 
       const card = document.createElement("div");
       card.className = "service-card";
@@ -369,14 +372,15 @@
     try{
         const resp = await fetch(`https://findhelpers.onrender.com/serviceProfessionals/${serviceId}`);
         if (!resp.ok) {
-            throw new Error(`HTTP error! status: ${resp.status}`);
+            throw new Error(`Failed to fetch service professionals: ${resp.statusText}`);
         }
         serviceProfessionals = await resp.json();
         showProfessionals(selectedServiceName, serviceId); 
     }
     catch(err){
         console.error("Error in fetching service professionals:", err);
-        alert("Failed to load professionals for this service.");
+        document.getElementById("professionalsContainer").innerHTML = `<p style="color: red;">Failed to load professionals for this service. ${err.message || 'Please try again.'}</p>`;
+        // alert("Failed to load professionals for this service."); // Removed redundant alert
     }
   }
 
@@ -439,6 +443,7 @@ async function sendRequest() {
   const serviceTime = document.getElementById('serviceTime_popup').value;
   const address = document.getElementById('address_popup').value;
 
+  // Basic client-side validation
   if (!reqUserName || !contact || !serviceDate || !serviceTime || !address) {
       alert("Please fill in all the request details.");
       return;
@@ -477,7 +482,7 @@ async function sendRequest() {
     closePopup(); // Close on success
   } catch (err) {
     console.error("Error sending request:", err);
-    
+    alert(`An error occurred while sending your request: ${err.message}`); // Inform user of error
   }
 }
 

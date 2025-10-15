@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>User Booking History</title>
     <style>
-        
         * {
             box-sizing: border-box;
         }
@@ -19,7 +18,6 @@
             flex-direction: column;
         }
 
-        
         header {
             background-color: #21778f;
             color: white;
@@ -29,7 +27,6 @@
             font-weight: 600;
         }
 
-        
         main {
             flex: 1; 
             max-width: 900px;
@@ -43,7 +40,6 @@
             color: #18126d;
         }
 
-        
         .history-container {
             display: flex;
             flex-wrap: wrap;
@@ -81,7 +77,7 @@
             color: #4caf50; 
             font-weight: bold;
         }
-        .status-rejected {
+        .status-canceled { 
             color: #f44336; 
             font-weight: bold;
         }
@@ -89,12 +85,7 @@
             color: #607d8b; 
             font-weight: bold;
         }
-        .status-cancelled {
-            color: #9e9e9e; 
-            font-weight: bold;
-        }
 
-        
         footer {
             background-color: #21778f;
             color: white;
@@ -104,7 +95,6 @@
             margin-top: auto; 
         }
 
-        
         @media (max-width: 600px) {
             .booking-card {
                 width: 90%;
@@ -144,16 +134,19 @@
 
         // --- Fetching User's Booking History ---
         async function loadHistory(userId) {
-            historyContainer.innerHTML = '<p>Loading your booking history...</p>'; //  loading message
+            historyContainer.innerHTML = '<p>Loading your booking history...</p>'; // Show loading message
             try {
-                
+                // Fetch services to map ser_id to serviceName
                 const servicesRes = await fetch('https://findhelpers.onrender.com/services');
+                if (!servicesRes.ok) {
+                    throw new Error(`Failed to fetch services: ${servicesRes.statusText}`);
+                }
                 const servicesData = await servicesRes.json();
                 const serviceMap = new Map(servicesData.map(s => [s.ser_id, s.serviceName]));
 
                 const res = await fetch(`https://findhelpers.onrender.com/requests/users/${userId}`);
                 if (!res.ok) {
-                    throw new Error(`HTTP error! status: ${res.status}`);
+                    throw new Error(`Failed to fetch user requests: ${res.statusText}`);
                 }
                 const requests = await res.json();
                 console.log("Fetched user requests:", requests);
@@ -162,7 +155,7 @@
 
             } catch (err) {
                 console.error("Error loading user history:", err);
-                historyContainer.innerHTML = '<p style="color: red;">Failed to load booking history. Please try again.</p>';
+                historyContainer.innerHTML = `<p style="color: red;">Failed to load booking history. ${err.message || 'Please try again.'}</p>`;
             }
         }
 
@@ -180,11 +173,13 @@
                 card.className = 'booking-card';
 
                 const serviceName = serviceMap.get(request.ser_id) || 'Unknown Service';
-                const statusClass = `status-${request.requeststatus.toLowerCase()}`; 
+                
+                const statusClass = `status-${request.requeststatus.toLowerCase()}`;
 
                 card.innerHTML = `
                     <h3>${serviceName}</h3>
-                    <p><strong>Professional:</strong> ${request.sp_name || 'N/A'}</p> 
+                    <!-- To display SP name, your /requests/users/:user_id endpoint would need to JOIN with serviceProfessionals table -->
+                    <p><strong>Professional ID:</strong> ${request.sp_id}</p>
                     <p><strong>Contact:</strong> ${request.contact}</p>
                     <p><strong>Date:</strong> ${new Date(request.servicedate).toLocaleDateString()}</p>
                     <p><strong>Time:</strong> ${request.servicetime}</p>

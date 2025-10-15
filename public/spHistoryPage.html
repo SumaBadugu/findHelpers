@@ -19,7 +19,6 @@
             flex-direction: column;
         }
 
-        
         header {
             background-color: #21778f;
             color: white;
@@ -29,7 +28,6 @@
             font-weight: 600;
         }
 
-        
         main {
             flex: 1; 
             max-width: 900px;
@@ -43,7 +41,6 @@
             color: #18126d;
         }
 
-        
         .history-container {
             display: flex;
             flex-wrap: wrap;
@@ -88,12 +85,10 @@
         }
         .status-pending { background-color: #ff9800; } 
         .status-accepted { background-color: #4caf50; } 
-        .status-rejected { background-color: #f44336; } 
+        .status-canceled { background-color: #f44336; } 
         .status-completed { background-color: #21778f; } 
-        .status-cancelled { background-color: #9e9e9e; } 
 
 
-        
         footer {
             background-color: #21778f;
             color: white;
@@ -103,7 +98,6 @@
             margin-top: auto; 
         }
 
-       
         @media (max-width: 600px) {
             .booking-card {
                 width: 90%;
@@ -143,16 +137,19 @@
 
         // --- Fetching Service Professional's Booking History ---
         async function loadHistory(spId) {
-            historyContainer.innerHTML = '<p>Loading your booking history...</p>'; //  loading message
+            historyContainer.innerHTML = '<p>Loading your booking history...</p>'; // Show loading message
             try {
                 // Fetch services to map ser_id to serviceName
                 const servicesRes = await fetch('https://findhelpers.onrender.com/services');
+                if (!servicesRes.ok) {
+                    throw new Error(`Failed to fetch services: ${servicesRes.statusText}`);
+                }
                 const servicesData = await servicesRes.json();
                 const serviceMap = new Map(servicesData.map(s => [s.ser_id, s.serviceName]));
 
                 const res = await fetch(`https://findhelpers.onrender.com/requests/serviceProfessionals/${spId}`);
                 if (!res.ok) {
-                    throw new Error(`HTTP error! status: ${res.status}`);
+                    throw new Error(`Failed to fetch SP requests: ${res.statusText}`);
                 }
                 const requests = await res.json();
                 console.log("Fetched SP requests:", requests);
@@ -161,7 +158,7 @@
 
             } catch (err) {
                 console.error("Error loading SP history:", err);
-                historyContainer.innerHTML = '<p style="color: red;">Failed to load booking history. Please try again.</p>';
+                historyContainer.innerHTML = `<p style="color: red;">Failed to load booking history. ${err.message || 'Please try again.'}</p>`;
             }
         }
 
@@ -179,7 +176,8 @@
                 card.className = 'booking-card';
 
                 const serviceName = serviceMap.get(request.ser_id) || 'Unknown Service';
-                const statusClass = `status-${request.requeststatus.toLowerCase()}`; 
+                
+                const statusClass = `status-${request.requeststatus.toLowerCase()}`;
 
                 card.innerHTML = `
                     <h3>${serviceName}</h3>
